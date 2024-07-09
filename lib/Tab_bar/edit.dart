@@ -76,7 +76,7 @@ class _EditsnacksItemState extends State<EditsnacksItem> {
       body: Stack(
         children: [
           Container(
-            color: Color.fromARGB(255, 101, 178, 233),
+            color: Color(0xFFA3D9FF).withOpacity(0.7),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [

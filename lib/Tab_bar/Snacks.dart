@@ -4,8 +4,6 @@ import 'dart:convert';
 
 import 'package:karobar/Tab_bar/edit.dart';
 
-// import 'package:practice/edit.dart';
-
 class snacks extends StatefulWidget {
   const snacks({Key? key}) : super(key: key);
 
@@ -58,6 +56,7 @@ class _snacksState extends State<snacks> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFA3D9FF).withOpacity(0.5),
       body: allRecords.isEmpty
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
@@ -65,9 +64,13 @@ class _snacksState extends State<snacks> {
               itemCount: allRecords.length,
               itemBuilder: (context, index) {
                 final item = allRecords[index];
-                return _buildsnacksCard(
-                  item: item,
-                  onUpdate: updateItem,
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 15.0), // Added vertical padding between cards
+                  child: _buildsnacksCard(
+                    item: item,
+                    onUpdate: updateItem,
+                  ),
                 );
               },
             ),
@@ -82,9 +85,9 @@ class _snacksState extends State<snacks> {
     bool isSmallScreen = screenWidth < 600;
 
     return Card(
-      elevation: 6,
+      elevation: 2,
       child: Padding(
-        padding: EdgeInsets.all(6),
+        padding: EdgeInsets.all(0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -92,19 +95,16 @@ class _snacksState extends State<snacks> {
               decoration: BoxDecoration(
                 color: Color(0xFF195DAD),
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
                 ),
               ),
               child: Center(
-                child: Text(
-                  item.itemName,
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 16 : 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white, // Text color
-                  ),
-                ),
+                child: Text(item.itemName,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 33,
+                        color: Colors.white)),
               ),
             ),
             Container(
@@ -115,11 +115,12 @@ class _snacksState extends State<snacks> {
                     flex: isSmallScreen ? 3 : 3,
                     child: Image.network(
                       item.pictureUrl,
-                      height: 100,
-                      width: 300,
+                      height: 200,
+                      width: 400,
+                      fit: BoxFit.contain,
                     ),
                   ),
-                  SizedBox(width: 16),
+                  SizedBox(width: 45),
                   Expanded(
                     flex: isSmallScreen ? 5 : 3,
                     child: Column(
@@ -139,39 +140,39 @@ class _snacksState extends State<snacks> {
                 ],
               ),
             ),
-            SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Rs. ${item.price}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: isSmallScreen ? 14 : 16,
+            Container(
+              color: Color(0xFFCDCDCD).withOpacity(0.8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text('Rs. ${item.price}',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              EditsnacksItem(item: item, onUpdate: onUpdate),
+                        ),
+                      );
+                      if (result != null && result is snacksItem) {
+                        onUpdate(result);
+                      }
+                    },
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Color(0xFF195DAD)),
+                      foregroundColor:
+                          MaterialStateProperty.all<Color>(Colors.white),
+                    ),
+                    child: Text('Edit',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20)),
                   ),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            EditsnacksItem(item: item, onUpdate: onUpdate),
-                      ),
-                    );
-                    if (result != null && result is snacksItem) {
-                      onUpdate(result);
-                    }
-                  },
-                  style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Color(0xFF195DAD)),
-                    foregroundColor:
-                        MaterialStateProperty.all<Color>(Colors.white),
-                  ),
-                  child: Text('Edit'),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -181,15 +182,18 @@ class _snacksState extends State<snacks> {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        children: [
-          Text(
-            '$label: ',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Text(value),
-        ],
+      padding: EdgeInsets.symmetric(vertical: 8.0),
+      child: Container(
+        child: Row(
+          children: [
+            Text(
+              '$label: ',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            Text(value,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+          ],
+        ),
       ),
     );
   }
