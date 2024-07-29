@@ -1,7 +1,7 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:karobar/nav_bar/Addnewitem.dart';
 
 class Ledger extends StatefulWidget {
   const Ledger({Key? key}) : super(key: key);
@@ -55,22 +55,65 @@ class _LedgerState extends State<Ledger> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFA3D9FF).withOpacity(0.5),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  Icon(Icons.book, size: 40), // Add ledger icon
+                  SizedBox(width: 10), // Space between icon and text
+                  Text('Ledger',
+                      style: TextStyle(fontSize: 30)), // Add Ledger text
+                ],
+              ),
+            ),
+            Spacer(),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              ),
+              onPressed: () {},
+              child: Row(
+                children: [
+                  Text(
+                    'Go to shop',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  Icon(Icons.arrow_forward, color: Colors.white),
+                ],
+              ),
+            ),
+          ],
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: Container(),
+        ),
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(height: 100),
+          SizedBox(height: 20),
           Center(
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
-                // color: Colors.white,
+                color: Colors.lightBlue[100], // Background color
+                borderRadius: BorderRadius.circular(20), // Curved border
+                border:
+                    Border.all(color: Colors.blue, width: 2), // Border outline
               ),
+              padding: EdgeInsets.all(10),
               child: _isLoading
                   ? CircularProgressIndicator()
                   : DataTable(
                       headingRowColor: MaterialStateColor.resolveWith(
-                          (states) => Color(0xFF075D9B)),
+                          (states) => Colors.blue),
                       columns: [
                         DataColumn(
                           label: Text('Date',
@@ -110,9 +153,7 @@ class _LedgerState extends State<Ledger> {
                                 child: Text(
                                   entry['date'] ?? '',
                                   style: TextStyle(
-                                    fontSize: 20, // Adjust text size here
-                                    color: Colors.black, // Text color
-                                  ),
+                                      fontSize: 20, color: Colors.black),
                                 ),
                               ),
                             ),
@@ -124,9 +165,7 @@ class _LedgerState extends State<Ledger> {
                                       ? '\$${entry['totalSales'].toString()}'
                                       : '',
                                   style: TextStyle(
-                                    fontSize: 20, // Adjust text size here
-                                    color: Colors.black, // Text color
-                                  ),
+                                      fontSize: 20, color: Colors.black),
                                 ),
                               ),
                             ),
@@ -138,9 +177,7 @@ class _LedgerState extends State<Ledger> {
                                       ? entry['items'].join(', ')
                                       : '',
                                   style: TextStyle(
-                                    fontSize: 20, // Adjust text size here
-                                    color: Colors.black, // Text color
-                                  ),
+                                      fontSize: 20, color: Colors.black),
                                 ),
                               ),
                             ),
@@ -152,9 +189,7 @@ class _LedgerState extends State<Ledger> {
                                       ? entry['noOfOrders'].toString()
                                       : '',
                                   style: TextStyle(
-                                    fontSize: 20, // Adjust text size here
-                                    color: Colors.black, // Text color
-                                  ),
+                                      fontSize: 20, color: Colors.black),
                                 ),
                               ),
                             ),
@@ -165,6 +200,61 @@ class _LedgerState extends State<Ledger> {
             ),
           ),
         ],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 60.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddNewItemPage()),
+                );
+              },
+              icon: Icon(Icons.add_circle_outline_outlined,
+                  color: Colors.white, size: 40),
+              label:
+                  Text('Add new item', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                textStyle: TextStyle(fontSize: 30),
+              ),
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 110,
+                  height: 110,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.mic, size: 60.0, color: Colors.white),
+                      Text(
+                        'Record',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,140 +1,180 @@
 import 'package:flutter/material.dart';
+import 'package:karobar/Inventory_Tab_bar/Snacks.dart';
+import 'package:karobar/Inventory_Tab_bar/beverges.dart';
+import 'package:karobar/Inventory_Tab_bar/fast_foot.dart';
+import 'package:karobar/Inventory_Tab_bar/others.dart';
+import 'package:karobar/nav_bar/Addnewitem.dart';
 
-class Inventory extends StatefulWidget {
-  const Inventory({Key? key}) : super(key: key);
-
+class InventoryPage extends StatefulWidget {
   @override
-  State<Inventory> createState() => _InventoryState();
+  _InventoryPageState createState() => _InventoryPageState();
 }
 
-class _InventoryState extends State<Inventory> {
+class _InventoryPageState extends State<InventoryPage> {
+  int _selectedCategoryIndex = 0;
+
+  final List<String> _categories = [
+    'Snacks',
+    'Beverages',
+    'Fast Food',
+    'Others'
+  ];
+
+  final List<Widget> _categoryWidgets = [
+    Snacks(),
+    Beverages(),
+    FastFood(),
+    Others(),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        padding: EdgeInsets.all(16.0),
-        children: [
-          _buildInventoryCard(
-            itemName: 'Tea',
-            imageUrl:
-                'https://assets.cntraveller.in/photos/60ba2522c28d168a1ec862a3/4:3/w_1440,h_1080,c_limit/Tea-.jpg',
-            price: 10,
-            quantity: 5,
-            remaining: 10,
-            popularity: 4.5,
-          ),
-          _buildInventoryCard(
-            itemName: 'Lays',
-            imageUrl:
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkSQbRxx2qEAmDgEuxUxx9tmqG0xidZ-x7iA&s',
-            price: 20,
-            quantity: 3,
-            remaining: 7,
-            popularity: 4.2,
-          ),
-          _buildInventoryCard(
-            itemName: 'Juice',
-            imageUrl:
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHPQtpGR-DhK_2eZ6pROYIw0xSq3_Mkwj0Lw&s',
-            price: 60,
-            quantity: 3,
-            remaining: 7,
-            popularity: 4.2,
-          ),
-          // Add more cards as needed
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInventoryCard({
-    required String itemName,
-    required String imageUrl,
-    required int price,
-    required int quantity,
-    required int remaining,
-    required double popularity,
-  }) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    bool isSmallScreen = screenWidth < 600;
-
-    return Card(
-      elevation: 6,
-      child: Padding(
-        padding: EdgeInsets.all(6),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: AppBar(
+        title: Row(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Color(0xFF195DAD),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
+            Expanded(
+              child: Container(
+                height: 50, // Adjust height
+                padding: EdgeInsets.symmetric(horizontal: 30), // Adjust width
+                decoration: BoxDecoration(
+                  color: Colors.lightBlueAccent,
+                  borderRadius: BorderRadius.circular(30),
                 ),
-              ),
-              child: Center(
-                child: Text(
-                  itemName,
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 16 : 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white, // Text color
-                  ),
+                child: Row(
+                  children: [
+                    Icon(Icons.search, color: Colors.black),
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Search',
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    Icon(Icons.camera_alt, color: Colors.black),
+                    SizedBox(width: 10), // Space between camera and mic icons
+                    Icon(Icons.mic, color: Colors.black),
+                  ],
                 ),
               ),
             ),
-            // Divider(),
-            Container(
-              color: Color(0xFFA3D9FF),
+            SizedBox(width: 120), // Adjust space between search box and button
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 10), // Adjust padding
+              ),
+              onPressed: () {},
               child: Row(
                 children: [
-                  Expanded(
-                    flex: isSmallScreen ? 3 : 3,
-                    child: Image.network(
-                      imageUrl,
-                      height: 100,
-                      width: 300,
-                    ),
+                  Text(
+                    'Go to shop',
+                    style: TextStyle(
+                        color: Colors.white, fontSize: 16), // Adjust font size
                   ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    flex: isSmallScreen ? 5 : 3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildInfoRow('Price', '$price'),
-                        _buildInfoRow('Quantity', quantity.toString()),
-                        _buildInfoRow('Remaining', remaining.toString()),
-                        _buildInfoRow('Popularity', popularity.toString()),
-                      ],
-                    ),
+                  Icon(
+                    Icons.arrow_forward,
+                    color: Colors.white,
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Rs. $price',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: isSmallScreen ? 14 : 16,
-                  ),
+          ],
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(150),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(_categories.length, (index) {
+                  return _buildCategoryButton(_categories[index], index);
+                }),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.home,
+                      size: 40,
+                    ), // Add home icon
+                    SizedBox(width: 10), // Space between icon and text
+                    Text('Inventory',
+                        style: TextStyle(fontSize: 30)), // Add Inventory text
+                  ],
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Implement edit functionality
-                  },
-                  style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Color(0xFF195DAD)),
-                    foregroundColor:
-                        MaterialStateProperty.all<Color>(Colors.white),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: Padding(
+        padding:
+            const EdgeInsets.only(top: 20.0), // Add padding above the content
+        child: _categoryWidgets[_selectedCategoryIndex],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(
+            bottom: 60.0), // Adjust the value to position above the navbar
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddNewItemPage()),
+                );
+              },
+              icon: Icon(
+                Icons.add_circle_outline_outlined,
+                color: Colors.white,
+                size: 40,
+              ),
+              label: Text(
+                'Add new item',
+                style: TextStyle(color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(
+                    horizontal: 20, vertical: 15), // Increase button size
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                textStyle: TextStyle(fontSize: 30), // Increase text size
+              ),
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 110,
+                  height: 110,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
                   ),
-                  child: Text('Edit'),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.mic, size: 60.0, color: Colors.white),
+                      Text(
+                        'Record',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -144,24 +184,31 @@ class _InventoryState extends State<Inventory> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        children: [
-          Text(
-            '$label: ',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Text(value),
-        ],
+  Widget _buildCategoryButton(String title, int index) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: _selectedCategoryIndex == index
+            ? Colors.blue
+            : Colors.lightBlueAccent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: EdgeInsets.symmetric(
+            horizontal: 20, vertical: 15), // Adjust padding
+        minimumSize: Size(170, 50), // Adjust width and height
+      ),
+      onPressed: () {
+        setState(() {
+          _selectedCategoryIndex = index;
+        });
+      },
+      child: Text(
+        title,
+        style: TextStyle(
+          color: _selectedCategoryIndex == index ? Colors.white : Colors.black,
+          fontSize: 16, // Adjust font size if needed
+        ),
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: Inventory(),
-  ));
 }
