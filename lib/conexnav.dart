@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:karobar/nav_bar/Inventory.dart';
 import 'package:karobar/nav_bar/Ledger.dart';
-import 'package:karobar/nav_bar/Shop.dart';
+import 'package:karobar/Shop_Tab_bar/Shop.dart';
 
 class ConvexNavBar extends StatefulWidget {
   @override
@@ -13,7 +13,7 @@ class _ConvexNavBarState extends State<ConvexNavBar> {
   int _selectedIndex = 0;
   final List<Widget> _pages = [
     InventoryPage(),
-    shop(),
+    Shop(),
     Ledger(),
     Center(child: Text('Ledger Page')),
   ];
