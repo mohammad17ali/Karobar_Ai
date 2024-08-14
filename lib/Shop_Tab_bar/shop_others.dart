@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class shopothers extends StatefulWidget {
-  const shopothers({Key? key}) : super(key: key);
+class ShopOthers extends StatefulWidget {
+  const ShopOthers({Key? key}) : super(key: key);
 
   @override
-  State<shopothers> createState() => _ShopSnacksState();
+  State<ShopOthers> createState() => _ShopOthersState();
 }
 
-class _ShopSnacksState extends State<shopothers> {
+class _ShopOthersState extends State<ShopOthers> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,9 +24,9 @@ class _ShopSnacksState extends State<shopothers> {
               physics: NeverScrollableScrollPhysics(),
               children: [
                 _buildInventoryCard(
-                  itemName: 'Bannana',
+                  itemName: 'Banana',
                   imageUrl:
-                      'https://www.google.com/imgres?q=bannnana&imgurl=https%3A%2F%2Fimages.immediat',
+                      'https://images.unsplash.com/photo-1574226516831-e1dff420e7cc',
                   price: 20,
                 ),
                 _buildInventoryCard(
@@ -98,7 +98,7 @@ class _ShopSnacksState extends State<shopothers> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(.0),
+                borderRadius: BorderRadius.circular(0.0),
                 child: Image.network(
                   imageUrl,
                   width: double.infinity,
@@ -148,5 +148,5 @@ class _ShopSnacksState extends State<shopothers> {
 }
 
 void main() => runApp(MaterialApp(
-      home: shopothers(),
+      home: ShopOthers(),
     ));

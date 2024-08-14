@@ -29,7 +29,7 @@ class _ConvexNavBarState extends State<ConvexNavBar> {
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: ConvexAppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: Color(0xff043F84),
         height: 80, // Adjust the height value as needed
         items: [
           TabItem(icon: Icons.home, title: 'Inventory'),

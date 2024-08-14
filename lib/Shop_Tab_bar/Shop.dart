@@ -24,87 +24,108 @@ class _InventoryPageState extends State<Shop> {
     ShopSnacks(),
     ShopBeverages(),
     ShopFastFood(),
-    shopothers()
+    ShopOthers()
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        flexibleSpace: Column(
           children: [
-            Expanded(
-              child: Container(
-                height: 50,
-                padding: EdgeInsets.symmetric(horizontal: 30),
-                decoration: BoxDecoration(
-                  color: Colors.lightBlueAccent,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.search, color: Colors.black),
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Search',
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                    Icon(Icons.camera_alt, color: Colors.black),
-                    SizedBox(width: 10),
-                    Icon(Icons.mic, color: Colors.black),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(width: 120),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              ),
-              onPressed: () {},
+            Container(
+              width: double
+                  .infinity, // This makes the container extend to the full width
+              height: 80,
+              color: Color(0xff043F84),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment
+                    .center, // Center content horizontally if needed
                 children: [
                   Text(
-                    'Place Order',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                  Icon(
-                    Icons.arrow_forward,
-                    color: Colors.white,
+                    'Shop',
+                    style: TextStyle(fontSize: 30, color: Color(0xffFFFFFF)),
                   ),
                 ],
               ),
             ),
+            SizedBox(height: 20)
           ],
         ),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(150),
+          preferredSize: Size.fromHeight(200),
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(_categories.length, (index) {
-                  return _buildCategoryButton(_categories[index], index);
-                }),
-              ),
               Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.symmetric(
+                    horizontal:
+                        16.0), // Adjust the horizontal padding as needed
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.shopping_bag,
-                      size: 40,
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        padding: EdgeInsets.symmetric(horizontal: 30),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFA5CEFF),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.search, color: Colors.black),
+                            Expanded(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  hintText: 'Search',
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                            Icon(Icons.camera_alt, color: Colors.black),
+                            SizedBox(width: 10),
+                            Icon(Icons.mic, color: Colors.black),
+                          ],
+                        ),
+                      ),
                     ),
-                    SizedBox(width: 10),
-                    Text('Shop', style: TextStyle(fontSize: 30)),
+                    SizedBox(width: 120),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xff043F84),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      ),
+                      onPressed: () {},
+                      child: Row(
+                        children: [
+                          Text(
+                            'Place\nOrder',
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                          SizedBox(width: 50),
+                          Icon(
+                            Icons.arrow_forward,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
+                ),
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(_categories.length, (index) {
+                    return _buildCategoryButton(_categories[index], index);
+                  }),
                 ),
               ),
             ],
@@ -181,9 +202,8 @@ class _InventoryPageState extends State<Shop> {
   Widget _buildCategoryButton(String title, int index) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: _selectedCategoryIndex == index
-            ? Colors.blue
-            : Colors.lightBlueAccent,
+        backgroundColor:
+            _selectedCategoryIndex == index ? Color(0xff043F84) : Colors.blue,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),

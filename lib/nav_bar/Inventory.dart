@@ -31,84 +31,104 @@ class _InventoryPageState extends State<InventoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        flexibleSpace: Column(
           children: [
-            Expanded(
-              child: Container(
-                height: 50, // Adjust height
-                padding: EdgeInsets.symmetric(horizontal: 30), // Adjust width
-                decoration: BoxDecoration(
-                  color: Colors.lightBlueAccent,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.search, color: Colors.black),
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Search',
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                    Icon(Icons.camera_alt, color: Colors.black),
-                    SizedBox(width: 10), // Space between camera and mic icons
-                    Icon(Icons.mic, color: Colors.black),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(width: 120), // Adjust space between search box and button
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 10), // Adjust padding
-              ),
-              onPressed: () {},
+            Container(
+              width: double.infinity,
+              height: 80,
+              color: Color(0xff043F84),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Go to shop',
-                    style: TextStyle(
-                        color: Colors.white, fontSize: 16), // Adjust font size
-                  ),
-                  Icon(
-                    Icons.arrow_forward,
-                    color: Colors.white,
-                  ),
+                  Text('Inventory',
+                      style: TextStyle(
+                          fontSize: 30,
+                          color: Color(0xffFFFFFF))), // Add Inventory text
                 ],
               ),
             ),
+            SizedBox(
+              height: 20,
+            )
           ],
         ),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(150),
+          preferredSize: Size.fromHeight(200),
           child: Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 50, // Adjust height
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 30), // Adjust width
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFA5CEFF),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.search, color: Colors.black),
+                            Expanded(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  hintText: 'Search',
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                            Icon(Icons.camera_alt, color: Colors.black),
+                            SizedBox(
+                                width:
+                                    10), // Space between camera and mic icons
+                            Icon(Icons.mic, color: Colors.black),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                        width:
+                            120), // Adjust space between search box and button
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xff043F84),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10), // Adjust padding
+                      ),
+                      onPressed: () {},
+                      child: Row(
+                        children: [
+                          Text(
+                            'Go to\nshop',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16), // Adjust font size
+                          ),
+                          SizedBox(
+                            width: 50,
+                          ),
+                          Icon(
+                            Icons.arrow_forward,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: List.generate(_categories.length, (index) {
                   return _buildCategoryButton(_categories[index], index);
                 }),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.home,
-                      size: 40,
-                    ), // Add home icon
-                    SizedBox(width: 10), // Space between icon and text
-                    Text('Inventory',
-                        style: TextStyle(fontSize: 30)), // Add Inventory text
-                  ],
-                ),
               ),
             ],
           ),
@@ -187,9 +207,8 @@ class _InventoryPageState extends State<InventoryPage> {
   Widget _buildCategoryButton(String title, int index) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: _selectedCategoryIndex == index
-            ? Colors.blue
-            : Colors.lightBlueAccent,
+        backgroundColor:
+            _selectedCategoryIndex == index ? Color(0xff043F84) : Colors.blue,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),

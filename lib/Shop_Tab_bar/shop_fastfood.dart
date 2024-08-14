@@ -11,41 +11,39 @@ class _ShopFastFoodState extends State<ShopFastFood> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(30.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 20.0,
-          mainAxisSpacing: 30.0,
+      backgroundColor: Color(0xFFE0F7FF),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(35.0),
+        child: Column(
           children: [
-            _buildInventoryCard(
-              itemName: 'Pani Puri',
-              imageUrl:
-                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfLf40t2rOzTqiIY0Br3Pnmm3WmSP9e09ggA&s',
-              price: 10,
-              quantity: 5,
-              remaining: 10,
-              popularity: 4.5,
+            GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 20.0,
+              mainAxisSpacing: 30.0,
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              children: [
+                _buildInventoryCard(
+                  itemName: 'Pani Puri',
+                  imageUrl:
+                      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfLf40t2rOzTqiIY0Br3Pnmm3WmSP9e09ggA&s',
+                  price: 10,
+                ),
+                _buildInventoryCard(
+                  itemName: 'Kalan',
+                  imageUrl:
+                      'https://www.jinooskitchen.com/wp-content/uploads/2020/04/roadside-kalan-manchurian-recipe.jpg',
+                  price: 20,
+                ),
+                _buildInventoryCard(
+                  itemName: 'Chicken Rice',
+                  imageUrl:
+                      'https://www.kannammacooks.com/wp-content/uploads/street-style-chicken-rice-recipe-1-3.jpg',
+                  price: 60,
+                ),
+                // Add more cards as needed
+              ],
             ),
-            _buildInventoryCard(
-              itemName: 'Kalan',
-              imageUrl:
-                  'https://www.jinooskitchen.com/wp-content/uploads/2020/04/roadside-kalan-manchurian-recipe.jpg',
-              price: 20,
-              quantity: 3,
-              remaining: 7,
-              popularity: 4.2,
-            ),
-            _buildInventoryCard(
-              itemName: 'Chicken Rice',
-              imageUrl:
-                  'https://www.kannammacooks.com/wp-content/uploads/street-style-chicken-rice-recipe-1-3.jpg',
-              price: 60,
-              quantity: 3,
-              remaining: 7,
-              popularity: 4.2,
-            ),
-            // Add more cards as needed
           ],
         ),
       ),
@@ -56,9 +54,6 @@ class _ShopFastFoodState extends State<ShopFastFood> {
     required String itemName,
     required String imageUrl,
     required int price,
-    required int quantity,
-    required int remaining,
-    required double popularity,
   }) {
     return Card(
       elevation: 6,
@@ -88,16 +83,16 @@ class _ShopFastFoodState extends State<ShopFastFood> {
               ),
             ),
           ),
-          // Container to ensure the image fits within the card
-          Container(
-            height: 150.0, // Adjust the height as needed
-            width: double.infinity,
-            child: ClipRRect(
-              borderRadius:
-                  BorderRadius.vertical(bottom: Radius.circular(16.0)),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(0.0),
+                child: Image.network(
+                  imageUrl,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),

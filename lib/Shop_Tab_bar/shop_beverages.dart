@@ -11,30 +11,31 @@ class _ShopBeveragesState extends State<ShopBeverages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(30.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 20.0,
-          mainAxisSpacing: 30.0,
+      backgroundColor: Color(0xFFE0F7FF),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(35.0),
+        child: Column(
           children: [
-            _buildInventoryCard(
-              itemName: 'Cola',
-              imageUrl: 'https://example.com/cola.jpg',
-              price: 20,
-              quantity: 3,
-              remaining: 7,
-              popularity: 4.2,
+            GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 20.0,
+              mainAxisSpacing: 30.0,
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              children: [
+                _buildInventoryCard(
+                  itemName: 'Cola',
+                  imageUrl: 'https://example.com/cola.jpg',
+                  price: 20,
+                ),
+                _buildInventoryCard(
+                  itemName: 'Juice',
+                  imageUrl: 'https://example.com/juice.jpg',
+                  price: 25,
+                ),
+                // Add more cards as needed
+              ],
             ),
-            _buildInventoryCard(
-              itemName: 'Juice',
-              imageUrl: 'https://example.com/juice.jpg',
-              price: 25,
-              quantity: 5,
-              remaining: 12,
-              popularity: 4.5,
-            ),
-            // Add more cards as needed
           ],
         ),
       ),
@@ -45,9 +46,6 @@ class _ShopBeveragesState extends State<ShopBeverages> {
     required String itemName,
     required String imageUrl,
     required int price,
-    required int quantity,
-    required int remaining,
-    required double popularity,
   }) {
     return Card(
       elevation: 6,
@@ -77,14 +75,16 @@ class _ShopBeveragesState extends State<ShopBeverages> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(0.0),
-              child: Image.network(
-                imageUrl,
-                width: double.infinity,
-                fit: BoxFit.cover,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(0.0),
+                child: Image.network(
+                  imageUrl,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),
