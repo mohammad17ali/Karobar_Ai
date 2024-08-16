@@ -1,4 +1,39 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+class Record {
+  final String id;
+  final String pictureUrl;
+  final String itemName;
+  final int price;
+  final int quantity;
+  final String category;
+  final String itemID;
+
+  Record({
+    required this.id,
+    required this.pictureUrl,
+    required this.itemName,
+    required this.price,
+    required this.quantity,
+    required this.category,
+    required this.itemID,
+  });
+
+  factory Record.fromJson(Map<String, dynamic> json) {
+    final fields = json['fields'];
+    return Record(
+      id: json['id'],
+      pictureUrl: fields['Picture']?.first['url'] ?? '',
+      itemName: fields['Item Name'] ?? '',
+      price: fields['Price'] ?? 0,
+      quantity: fields['Quantity'] ?? 0,
+      category: fields['Category'] ?? '',
+      itemID: fields['ItemID'] ?? '',
+    );
+  }
+}
 
 class Snacks extends StatefulWidget {
   const Snacks({Key? key}) : super(key: key);
@@ -8,22 +43,68 @@ class Snacks extends StatefulWidget {
 }
 
 class _SnacksState extends State<Snacks> {
+  late Future<List<Record>> records;
+
+  @override
+  void initState() {
+    super.initState();
+    records = fetchRecords();
+  }
+
+  Future<List<Record>> fetchRecords() async {
+    final response = await http.get(
+      Uri.parse(
+          'https://api.airtable.com/v0/appgAln53ifPLiXNu/tblvBQeCreDaryIPs'),
+      headers: {
+        'Authorization':
+            'Bearer patXmwDbTcQr2K1lJ.de9224db382239bd6b93f162a21d6b0db884233ee5f59ab1458e5851b6764451',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> json = jsonDecode(response.body);
+      List<Record> records = (json['records'] as List)
+          .map((data) => Record.fromJson(data))
+          .toList();
+      return records;
+    } else {
+      throw Exception('Failed to load records');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        padding: EdgeInsets.all(30.0),
-        children: [
-          _buildInventoryCard(
-            itemName: 'Chips',
-            imageUrl: 'https://example.com/chips.jpg',
-            price: 20,
-            quantity: 1,
-            remaining: 350,
-            popularity: 3,
-          ),
-          // Add more cards as needed
-        ],
+      body: Container(
+        color: Color(0xFFEEFFFF),
+        child: FutureBuilder<List<Record>>(
+          future: records,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text('No records found.'));
+            } else {
+              return ListView.builder(
+                padding: EdgeInsets.all(30.0),
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  final record = snapshot.data![index];
+                  return _buildInventoryCard(
+                    itemName: record.itemName,
+                    imageUrl: record.pictureUrl,
+                    price: record.price,
+                    quantity: record.quantity,
+                    remaining: 350, // Replace with actual remaining value
+                    popularity: 3, // Replace with actual popularity value
+                  );
+                },
+              );
+            }
+          },
+        ),
       ),
     );
   }
@@ -68,7 +149,7 @@ class _SnacksState extends State<Snacks> {
                 ),
               ),
               Container(
-                color: Color(0xFFA3D9FF),
+                color: Color(0xFFA5CEFF),
                 child: Row(
                   children: [
                     Expanded(
@@ -80,13 +161,13 @@ class _SnacksState extends State<Snacks> {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    SizedBox(width: 100),
+                    SizedBox(width: 10), // Adjusted spacing
                     Expanded(
                       flex: 5,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildInfoRow('Price', '$price'),
+                          _buildInfoRow('Price', '₹$price'),
                           _buildInfoRow('Quantity', quantity.toString()),
                           _buildInfoRow('Remaining', remaining.toString()),
                           _buildInfoRow('Popularity', popularity.toString()),
@@ -96,33 +177,35 @@ class _SnacksState extends State<Snacks> {
                   ],
                 ),
               ),
-              SizedBox(height: 5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text(
-                      '₹$price',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: isSmallScreen ? 14 : 16,
+              Divider(),
+              Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                        '₹$price',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: isSmallScreen ? 14 : 16,
+                        ),
                       ),
                     ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Implement edit functionality
-                    },
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Color(0xFF195DAD)),
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Implement edit functionality
+                      },
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Color(0xFF195DAD)),
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.white),
+                      ),
+                      child: Text('Edit', style: TextStyle(fontSize: 25)),
                     ),
-                    child: Text('Edit', style: TextStyle(fontSize: 25)),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),

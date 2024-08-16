@@ -6,7 +6,7 @@ import 'package:karobar/Inventory_Tab_bar/Snacks.dart';
 import 'package:karobar/Shop_Tab_bar/Shop.dart';
 
 class EditsnacksItem extends StatefulWidget {
-  final snacksItem item;
+  final SnackBar item;
   final Function onUpdate;
 
   const EditsnacksItem({Key? key, required this.item, required this.onUpdate})

@@ -155,7 +155,7 @@ class _InventoryPageState extends State<Shop> {
                 size: 40,
               ),
               label: Text(
-                'Add new item',
+                'Add \nnew item',
                 style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
@@ -164,7 +164,7 @@ class _InventoryPageState extends State<Shop> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                textStyle: TextStyle(fontSize: 30),
+                textStyle: TextStyle(fontSize: 20),
               ),
             ),
             Column(

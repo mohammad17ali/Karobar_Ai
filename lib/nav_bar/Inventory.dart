@@ -3,9 +3,14 @@ import 'package:karobar/Inventory_Tab_bar/Snacks.dart';
 import 'package:karobar/Inventory_Tab_bar/beverges.dart';
 import 'package:karobar/Inventory_Tab_bar/fast_foot.dart';
 import 'package:karobar/Inventory_Tab_bar/others.dart';
+import 'package:karobar/Record.dart';
 import 'package:karobar/nav_bar/Addnewitem.dart';
 
 class InventoryPage extends StatefulWidget {
+  final VoidCallback onGoToShop;
+
+  InventoryPage({required this.onGoToShop});
+
   @override
   _InventoryPageState createState() => _InventoryPageState();
 }
@@ -41,9 +46,7 @@ class _InventoryPageState extends State<InventoryPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('Inventory',
-                      style: TextStyle(
-                          fontSize: 30,
-                          color: Color(0xffFFFFFF))), // Add Inventory text
+                      style: TextStyle(fontSize: 30, color: Color(0xffFFFFFF))),
                 ],
               ),
             ),
@@ -62,9 +65,8 @@ class _InventoryPageState extends State<InventoryPage> {
                   children: [
                     Expanded(
                       child: Container(
-                        height: 50, // Adjust height
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 30), // Adjust width
+                        height: 50,
+                        padding: EdgeInsets.symmetric(horizontal: 30),
                         decoration: BoxDecoration(
                           color: const Color(0xFFA5CEFF),
                           borderRadius: BorderRadius.circular(30),
@@ -81,41 +83,42 @@ class _InventoryPageState extends State<InventoryPage> {
                               ),
                             ),
                             Icon(Icons.camera_alt, color: Colors.black),
-                            SizedBox(
-                                width:
-                                    10), // Space between camera and mic icons
+                            SizedBox(width: 10),
                             Icon(Icons.mic, color: Colors.black),
                           ],
                         ),
                       ),
                     ),
-                    SizedBox(
-                        width:
-                            120), // Adjust space between search box and button
+                    SizedBox(width: 20), // Adjust spacing as needed
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xff043F84),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 10), // Adjust padding
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AddNewItemPage()),
+                        );
+                      },
                       child: Row(
                         children: [
                           Text(
-                            'Go to\nshop',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16), // Adjust font size
+                            'Add \nnew item',
+                            style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                           SizedBox(
-                            width: 50,
+                            width: 10,
                           ),
                           Icon(
-                            Icons.arrow_forward,
+                            Icons.add_circle_outline_outlined,
                             color: Colors.white,
+                            size: 40,
                           ),
                         ],
                       ),
@@ -134,71 +137,41 @@ class _InventoryPageState extends State<InventoryPage> {
           ),
         ),
       ),
-      body: Padding(
-        padding:
-            const EdgeInsets.only(top: 20.0), // Add padding above the content
-        child: _categoryWidgets[_selectedCategoryIndex],
+      body: Container(
+        color: Color(0xFFEEFFFF),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 20.0),
+          child: _categoryWidgets[_selectedCategoryIndex],
+        ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(
-            bottom: 60.0), // Adjust the value to position above the navbar
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddNewItemPage()),
-                );
-              },
-              icon: Icon(
-                Icons.add_circle_outline_outlined,
-                color: Colors.white,
-                size: 40,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => RecordPage()),
+          );
+        },
+        child: Container(
+          width: 110,
+          height: 110,
+          decoration: BoxDecoration(
+            color: Colors.red,
+            shape: BoxShape.circle,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.mic, size: 60.0, color: Colors.white),
+              Text(
+                'Record',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold),
               ),
-              label: Text(
-                'Add new item',
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 15), // Increase button size
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                textStyle: TextStyle(fontSize: 30), // Increase text size
-              ),
-            ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 110,
-                  height: 110,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.mic, size: 60.0, color: Colors.white),
-                      Text(
-                        'Record',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -212,9 +185,8 @@ class _InventoryPageState extends State<InventoryPage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        padding: EdgeInsets.symmetric(
-            horizontal: 20, vertical: 15), // Adjust padding
-        minimumSize: Size(170, 50), // Adjust width and height
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        minimumSize: Size(170, 50),
       ),
       onPressed: () {
         setState(() {
@@ -225,7 +197,7 @@ class _InventoryPageState extends State<InventoryPage> {
         title,
         style: TextStyle(
           color: _selectedCategoryIndex == index ? Colors.white : Colors.black,
-          fontSize: 16, // Adjust font size if needed
+          fontSize: 16,
         ),
       ),
     );

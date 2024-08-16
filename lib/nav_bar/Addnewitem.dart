@@ -16,7 +16,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
   late TextEditingController itemNameController;
   late TextEditingController priceController;
   late TextEditingController quantityController;
-  late TextEditingController categoryController;
+  String? _selectedCategory;
   File? _imageFile;
   final picker = ImagePicker();
   bool _isLoading = false;
@@ -27,7 +27,6 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
     itemNameController = TextEditingController();
     priceController = TextEditingController();
     quantityController = TextEditingController();
-    categoryController = TextEditingController();
   }
 
   @override
@@ -35,7 +34,6 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
     itemNameController.dispose();
     priceController.dispose();
     quantityController.dispose();
-    categoryController.dispose();
     super.dispose();
   }
 
@@ -61,24 +59,22 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
 
   Future<void> _addItem() async {
     if (_imageFile == null) {
-      // Handle the case where no image is selected
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('Please select an image for the item.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      _showAlertDialog('Error', 'Please select an image for the item.');
+      return;
+    }
+
+    if (itemNameController.text.isEmpty) {
+      _showAlertDialog('Error', 'Please enter the item name.');
+      return;
+    }
+
+    if (priceController.text.isEmpty) {
+      _showAlertDialog('Error', 'Please enter the price.');
+      return;
+    }
+
+    if (quantityController.text.isEmpty) {
+      _showAlertDialog('Error', 'Please enter the quantity.');
       return;
     }
 
@@ -86,15 +82,12 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
       _isLoading = true;
     });
 
-    // Prepare data to send to API
     final base64Image = base64Encode(_imageFile!.readAsBytesSync());
     final url = Uri.parse(
         'https://api.airtable.com/v0/appgAln53ifPLiXNu/Items'); // Replace with your API endpoint
 
-    // Prepare headers and body
     final headers = {
-      'Authorization':
-          'Bearer patXmwDbTcQr2K1lJ.de9224db382239bd6b93f162a21d6b0db884233ee5f59ab1458e5851b6764451+', // Replace with your API key
+      'Authorization': 'Bearer YOUR_API_KEY', // Replace with your API key
       'Content-Type': 'application/json',
     };
 
@@ -102,97 +95,25 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
       'itemName': itemNameController.text,
       'price': double.parse(priceController.text),
       'quantity': int.parse(quantityController.text),
-      'category': categoryController.text,
+      'category': _selectedCategory,
       'image': 'data:image/jpeg;base64,$base64Image',
     });
 
     try {
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: body,
-      );
+      final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
-        // Handle success
-        print('Item added successfully');
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Success'),
-              content: Text('Item added successfully.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
+        _showAlertDialog('Success', 'Item added successfully.');
       } else {
-        // Handle error
-        print('Failed to add item');
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text('Failed to add item. Please try again later.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
+        _showAlertDialog(
+            'Error', 'Failed to add item. Please try again later.');
       }
     } on SocketException catch (e) {
-      print('Network error: $e');
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Network Error'),
-            content: Text(
-                'Failed to connect to the server. Please check your network connection and try again.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      _showAlertDialog('Network Error',
+          'Failed to connect to the server. Please check your network connection and try again.');
     } catch (e) {
-      print('Unexpected error: $e');
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('An unexpected error occurred. Please try again.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      _showAlertDialog(
+          'Error', 'An unexpected error occurred. Please try again.');
     }
 
     setState(() {
@@ -200,34 +121,75 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
     });
   }
 
+  void _showAlertDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-      backgroundColor: Color(0xFFA3D9FF).withOpacity(0.5),
+      appBar: AppBar(
+        backgroundColor: Color(0xFF043F84),
+        title: Text(
+          'Add New Item',
+          style: TextStyle(color: Colors.white),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          color: Colors.white,
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      backgroundColor: Colors.white,
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(),
             )
-          : SingleChildScrollView(
-              padding: EdgeInsets.all(isSmallScreen ? 16 : 40),
-              child: Center(
-                child: Container(
-                  color: Color(0xFFA3D9FF),
-                  margin: EdgeInsets.all(50),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
+          : Center(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(isSmallScreen ? 16 : 40),
+                child: Center(
+                  child: Container(
+                    padding: EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Color(0xFFD9EFFF),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         TextField(
                           controller: itemNameController,
                           decoration: InputDecoration(
-                            labelText: 'Item Name',
+                            labelText: 'Name of Item',
+                            hintText: 'e.g., Kurkure',
                             labelStyle: TextStyle(
-                              fontSize: isSmallScreen ? 20 : 30,
+                              fontSize: isSmallScreen ? 18 : 22,
                               color: Colors.black,
+                            ),
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: isSmallScreen ? 14 : 18,
                             ),
                           ),
                           style: TextStyle(
@@ -240,10 +202,15 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
                         TextField(
                           controller: priceController,
                           decoration: InputDecoration(
-                            labelText: 'Price',
+                            labelText: 'Price (Rs.)',
+                            hintText: 'e.g., 20',
                             labelStyle: TextStyle(
-                              fontSize: isSmallScreen ? 20 : 30,
+                              fontSize: isSmallScreen ? 18 : 22,
                               color: Colors.black,
+                            ),
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: isSmallScreen ? 14 : 18,
                             ),
                           ),
                           keyboardType: TextInputType.number,
@@ -257,10 +224,15 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
                         TextField(
                           controller: quantityController,
                           decoration: InputDecoration(
-                            labelText: 'Quantity',
+                            labelText: 'Quantity in stock',
+                            hintText: 'e.g., 200',
                             labelStyle: TextStyle(
-                              fontSize: isSmallScreen ? 20 : 30,
+                              fontSize: isSmallScreen ? 18 : 22,
                               color: Colors.black,
+                            ),
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: isSmallScreen ? 14 : 18,
                             ),
                           ),
                           keyboardType: TextInputType.number,
@@ -271,56 +243,104 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
                           ),
                         ),
                         SizedBox(height: isSmallScreen ? 20 : 30),
-                        TextField(
-                          controller: categoryController,
+                        DropdownButtonFormField<String>(
+                          value: _selectedCategory,
                           decoration: InputDecoration(
                             labelText: 'Category',
                             labelStyle: TextStyle(
-                              fontSize: isSmallScreen ? 20 : 30,
+                              fontSize: isSmallScreen ? 18 : 22,
                               color: Colors.black,
                             ),
                           ),
-                          style: TextStyle(
-                            fontSize: isSmallScreen ? 16 : 20,
-                            color: Color(0xFF195DAD),
-                            fontWeight: FontWeight.bold,
+                          items: [
+                            DropdownMenuItem(
+                              child: Text('Snacks'),
+                              value: 'Snacks',
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Beverages'),
+                              value: 'Beverages',
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Fast Food'),
+                              value: 'Fast Food',
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Others'),
+                              value: 'Others',
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedCategory = value;
+                            });
+                          },
+                        ),
+                        SizedBox(height: isSmallScreen ? 20 : 30),
+                        GestureDetector(
+                          onTap: () {
+                            _showImageSourceSelection(context);
+                          },
+                          child: Container(
+                            height: 200,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: _imageFile == null
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.add_a_photo,
+                                        size: 50,
+                                        color: Colors.grey[700],
+                                      ),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        'Click on the picture',
+                                        style: TextStyle(
+                                          color: Colors.grey[700],
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Image.file(
+                                      _imageFile!,
+                                      height: 200,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                           ),
                         ),
                         SizedBox(height: isSmallScreen ? 20 : 30),
-                        _imageFile == null
-                            ? GestureDetector(
-                                onTap: () {
-                                  _showImageSourceSelection(context);
-                                },
-                                child: Container(
-                                  height: 200,
-                                  color: Colors.grey[300],
-                                  child: Icon(Icons.add_a_photo, size: 50),
-                                ),
-                              )
-                            : Image.file(
-                                _imageFile!,
-                                height: 200,
-                                fit: BoxFit.cover,
-                              ),
-                        SizedBox(height: isSmallScreen ? 10 : 20),
                         ElevatedButton(
                           onPressed: _addItem,
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
                                 Color(0xFF195DAD)),
-                            foregroundColor:
-                                MaterialStateProperty.all<Color>(Colors.white),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                            ),
                             padding:
                                 MaterialStateProperty.all<EdgeInsetsGeometry>(
                               EdgeInsets.symmetric(
-                                  vertical: isSmallScreen ? 14.0 : 20.0,
-                                  horizontal: 50.0),
+                                vertical: isSmallScreen ? 14.0 : 20.0,
+                                horizontal: 50.0,
+                              ),
                             ),
                           ),
                           child: Text(
                             'Add Item',
-                            style: TextStyle(fontSize: isSmallScreen ? 16 : 20),
+                            style: TextStyle(
+                                fontSize: isSmallScreen ? 16 : 20,
+                                color: Colors.white),
                           ),
                         ),
                       ],
@@ -329,6 +349,17 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
                 ),
               ),
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        child: Icon(
+          Icons.arrow_back,
+          color: Colors.white,
+        ),
+        backgroundColor: Color(0xFF195DAD),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 

@@ -11,19 +11,22 @@ class _BeveragesState extends State<Beverages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        padding: EdgeInsets.all(30.0),
-        children: [
-          _buildInventoryCard(
-            itemName: 'Cola',
-            imageUrl: 'https://example.com/cola.jpg',
-            price: 20,
-            quantity: 3,
-            remaining: 7,
-            popularity: 4.2,
-          ),
-          // Add more cards as needed
-        ],
+      body: Container(
+        color: Color(0xFFEEFFFF),
+        child: ListView(
+          padding: EdgeInsets.all(30.0),
+          children: [
+            _buildInventoryCard(
+              itemName: 'Cola',
+              imageUrl: 'https://example.com/cola.jpg',
+              price: 20,
+              quantity: 3,
+              remaining: 7,
+              popularity: 4.2,
+            ),
+            // Add more cards as needed
+          ],
+        ),
       ),
     );
   }
@@ -68,7 +71,7 @@ class _BeveragesState extends State<Beverages> {
                 ),
               ),
               Container(
-                color: Color(0xFFA3D9FF),
+                color: Color(0xFFA5CEFF),
                 child: Row(
                   children: [
                     Expanded(
@@ -96,7 +99,8 @@ class _BeveragesState extends State<Beverages> {
                   ],
                 ),
               ),
-              SizedBox(height: 5),
+              // SizedBox(height: 5),
+              Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

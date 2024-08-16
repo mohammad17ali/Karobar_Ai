@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/splash', // Initial route to SplashScreen
+      initialRoute: '/splash', // Initial route to Sp lashScreen x
       routes: {
         '/splash': (context) => SplashScreen(), // SplashScreen as initial route
         '/nav': (context) => ConvexNavBar(),

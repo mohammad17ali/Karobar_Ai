@@ -11,16 +11,33 @@ class ConvexNavBar extends StatefulWidget {
 
 class _ConvexNavBarState extends State<ConvexNavBar> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize InventoryPage with callback
+    _pages[0] = InventoryPage(onGoToShop: _goToShop);
+  }
+
+  // List of pages
   final List<Widget> _pages = [
-    InventoryPage(),
+    SizedBox
+        .shrink(), // Placeholder; will be replaced by InventoryPage with callback
     Shop(),
     Ledger(),
-    Center(child: Text('Ledger Page')),
+    Center(child: Text('Dashboard Page')),
   ];
+
+  // Callback function to change the selected index to Shop
+  void _goToShop() {
+    setState(() {
+      _selectedIndex = 1; // Change to the Shop tab
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      _selectedIndex = index; // Change to the selected tab
     });
   }
 
@@ -30,7 +47,7 @@ class _ConvexNavBarState extends State<ConvexNavBar> {
       body: _pages[_selectedIndex],
       bottomNavigationBar: ConvexAppBar(
         backgroundColor: Color(0xff043F84),
-        height: 80, // Adjust the height value as needed
+        height: 80,
         items: [
           TabItem(icon: Icons.home, title: 'Inventory'),
           TabItem(icon: Icons.shopping_bag, title: 'Shop'),

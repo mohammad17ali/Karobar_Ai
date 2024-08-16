@@ -11,47 +11,50 @@ class _OthersState extends State<Others> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        padding: EdgeInsets.all(30.0),
-        children: [
-          _buildInventoryCard(
-            itemName: 'Tea',
-            imageUrl:
-                'https://assets.cntraveller.in/photos/60ba2522c28d168a1ec862a3/4:3/w_1440,h_1080,c_limit/Tea-.jpg',
-            price: 10,
-            quantity: 5,
-            remaining: 10,
-            popularity: 4.5,
-          ),
-          _buildInventoryCard(
-            itemName: 'Lays',
-            imageUrl:
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkSQbRxx2qEAmDgEuxUxx9tmqG0xidZ-x7iA&s',
-            price: 20,
-            quantity: 3,
-            remaining: 7,
-            popularity: 4.2,
-          ),
-          _buildInventoryCard(
-            itemName: 'Juice',
-            imageUrl:
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHPQtpGR-DhK_2eZ6pROYIw0xSq3_Mkwj0Lw&s',
-            price: 60,
-            quantity: 3,
-            remaining: 7,
-            popularity: 4.2,
-          ),
-          _buildInventoryCard(
-            itemName: 'Juice',
-            imageUrl:
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHPQtpGR-DhK_2eZ6pROYIw0xSq3_Mkwj0Lw&s',
-            price: 60,
-            quantity: 3,
-            remaining: 7,
-            popularity: 4.2,
-          ),
-          // Add more cards as needed
-        ],
+      body: Container(
+        color: Color(0xFFEEFFFF),
+        child: ListView(
+          padding: EdgeInsets.all(30.0),
+          children: [
+            _buildInventoryCard(
+              itemName: 'Tea',
+              imageUrl:
+                  'https://assets.cntraveller.in/photos/60ba2522c28d168a1ec862a3/4:3/w_1440,h_1080,c_limit/Tea-.jpg',
+              price: 10,
+              quantity: 5,
+              remaining: 10,
+              popularity: 4.5,
+            ),
+            _buildInventoryCard(
+              itemName: 'Lays',
+              imageUrl:
+                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkSQbRxx2qEAmDgEuxUxx9tmqG0xidZ-x7iA&s',
+              price: 20,
+              quantity: 3,
+              remaining: 7,
+              popularity: 4.2,
+            ),
+            _buildInventoryCard(
+              itemName: 'Juice',
+              imageUrl:
+                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHPQtpGR-DhK_2eZ6pROYIw0xSq3_Mkwj0Lw&s',
+              price: 60,
+              quantity: 3,
+              remaining: 7,
+              popularity: 4.2,
+            ),
+            _buildInventoryCard(
+              itemName: 'Juice',
+              imageUrl:
+                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHPQtpGR-DhK_2eZ6pROYIw0xSq3_Mkwj0Lw&s',
+              price: 60,
+              quantity: 3,
+              remaining: 7,
+              popularity: 4.2,
+            ),
+            // Add more cards as needed
+          ],
+        ),
       ),
     );
   }
@@ -96,7 +99,7 @@ class _OthersState extends State<Others> {
                 ),
               ),
               Container(
-                color: Color(0xFFA3D9FF),
+                color: Color(0xFFA5CEFF),
                 child: Row(
                   children: [
                     Expanded(
@@ -124,7 +127,8 @@ class _OthersState extends State<Others> {
                   ],
                 ),
               ),
-              SizedBox(height: 5),
+              // SizedBox(height: 5),
+              Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
