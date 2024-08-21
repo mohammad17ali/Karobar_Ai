@@ -282,7 +282,8 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
                             _showImageSourceSelection(context);
                           },
                           child: Container(
-                            height: 200,
+                            height: 300,
+                            width: 20,
                             decoration: BoxDecoration(
                               color: Colors.grey[300],
                               borderRadius: BorderRadius.circular(15),

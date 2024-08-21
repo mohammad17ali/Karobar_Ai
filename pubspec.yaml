@@ -16,9 +16,12 @@ dependencies:
   image_picker: ^1.1.2
   convex_bottom_bar: ^3.2.0
   intl: ^0.19.0
-  flutter_sound: ^9.10.4
+  flutter_sound: ^9.8.1
   permission_handler: ^11.3.1
   lottie: ^3.1.2
+  web: ^1.0.0
+  cached_network_image: ^3.4.1
+
 
 
 dev_dependencies:

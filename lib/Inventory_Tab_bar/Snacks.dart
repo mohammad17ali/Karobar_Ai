@@ -43,32 +43,55 @@ class Snacks extends StatefulWidget {
 }
 
 class _SnacksState extends State<Snacks> {
-  late Future<List<Record>> records;
+  List<Record>? records;
+  bool isLoading = false;
+  bool isFetched = false; // Track if data has been fetched
 
   @override
   void initState() {
     super.initState();
-    records = fetchRecords();
+    fetchRecords();
   }
 
-  Future<List<Record>> fetchRecords() async {
-    final response = await http.get(
-      Uri.parse(
-          'https://api.airtable.com/v0/appgAln53ifPLiXNu/tblvBQeCreDaryIPs'),
-      headers: {
-        'Authorization':
-            'Bearer patXmwDbTcQr2K1lJ.de9224db382239bd6b93f162a21d6b0db884233ee5f59ab1458e5851b6764451',
-      },
-    );
+  Future<void> fetchRecords() async {
+    setState(() {
+      isLoading = true;
+    });
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> json = jsonDecode(response.body);
-      List<Record> records = (json['records'] as List)
-          .map((data) => Record.fromJson(data))
-          .toList();
-      return records;
-    } else {
-      throw Exception('Failed to load records');
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://api.airtable.com/v0/appgAln53ifPLiXNu/tblvBQeCreDaryIPs'),
+        headers: {
+          'Authorization':
+              'Bearer patXmwDbTcQr2K1lJ.de9224db382239bd6b93f162a21d6b0db884233ee5f59ab1458e5851b6764451',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
+        List<Record> recordsList = (json['records'] as List)
+            .map((data) => Record.fromJson(data))
+            .toList();
+        setState(() {
+          records = recordsList;
+          isFetched = true; // Mark data as fetched
+        });
+      } else {
+        throw Exception('Failed to load records');
+      }
+    } catch (e) {
+      // Handle error
+      setState(() {
+        records = [];
+        isFetched =
+            true; // Even if an error occurs, mark as fetched to avoid retries
+      });
+      print('Error: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -77,34 +100,25 @@ class _SnacksState extends State<Snacks> {
     return Scaffold(
       body: Container(
         color: Color(0xFFEEFFFF),
-        child: FutureBuilder<List<Record>>(
-          future: records,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text('No records found.'));
-            } else {
-              return ListView.builder(
-                padding: EdgeInsets.all(30.0),
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  final record = snapshot.data![index];
-                  return _buildInventoryCard(
-                    itemName: record.itemName,
-                    imageUrl: record.pictureUrl,
-                    price: record.price,
-                    quantity: record.quantity,
-                    remaining: 350, // Replace with actual remaining value
-                    popularity: 3, // Replace with actual popularity value
-                  );
-                },
-              );
-            }
-          },
-        ),
+        child: isLoading && !isFetched
+            ? Center(child: CircularProgressIndicator())
+            : records == null || records!.isEmpty
+                ? Center(child: Text('No records found.'))
+                : ListView.builder(
+                    padding: EdgeInsets.all(30.0),
+                    itemCount: records!.length,
+                    itemBuilder: (context, index) {
+                      final record = records![index];
+                      return _buildInventoryCard(
+                        itemName: record.itemName,
+                        imageUrl: record.pictureUrl,
+                        price: record.price,
+                        quantity: record.quantity,
+                        remaining: 350, // Replace with actual remaining value
+                        popularity: 3, // Replace with actual popularity value
+                      );
+                    },
+                  ),
       ),
     );
   }

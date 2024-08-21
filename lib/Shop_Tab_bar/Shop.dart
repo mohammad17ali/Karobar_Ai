@@ -4,6 +4,7 @@ import 'package:karobar/Shop_Tab_bar/shop_fastfood.dart';
 import 'package:karobar/Shop_Tab_bar/shop_others.dart';
 import 'package:karobar/Shop_Tab_bar/shop_snacks.dart';
 import 'package:karobar/nav_bar/Addnewitem.dart';
+import 'package:karobar/ordersummary.dart';
 
 class Shop extends StatefulWidget {
   @override
@@ -98,7 +99,13 @@ class _InventoryPageState extends State<Shop> {
                         padding:
                             EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const OrderSummary()),
+                        );
+                      },
                       child: Row(
                         children: [
                           Text(
