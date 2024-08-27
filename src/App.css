@@ -1,3 +1,4 @@
+/* this is the css of the website  */
 /* General body styling */
 body {
   background: linear-gradient(135deg, #001f3f, #0052cc, #ff416c, #b61616); /* Enhanced blue to red gradient with multiple shades */
@@ -181,4 +182,4 @@ body::before {
     opacity: 1;
     transform: translateY(0);
   }
-}
+} 
