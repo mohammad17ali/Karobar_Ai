@@ -11,7 +11,7 @@ body {
 /* Optional radial gradient overlay for added depth */
 body::before {
   content: "";
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -131,8 +131,8 @@ body::before {
   padding: 120px 30px;
   border-radius: 15px;
   margin: 50px 30px;
-  background: rgba(0, 0, 0, 0.6);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  background: none;
+  /* box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); */
 }
 
 .main-section .text-content {
