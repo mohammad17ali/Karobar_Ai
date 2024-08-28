@@ -1,4 +1,3 @@
-/* this is the css of the website  */
 /* General body styling */
 body {
   background: linear-gradient(135deg, #001f3f, #0052cc, #ff416c, #b61616); /* Enhanced blue to red gradient with multiple shades */
@@ -109,7 +108,7 @@ body::before {
 }
 
 .demo-btn {
-  background-color: #009ab5;
+  background-color: #084ec6;
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
@@ -124,9 +123,11 @@ body::before {
   transform: scale(1.05);
 }
 
-/* Main section styling */
+/* Main section styling with new fonts and vertical alignment */
 .main-section {
-  text-align: center;
+  display: flex;
+  justify-content: space-between; /* Space between text and photo area */
+  align-items: center; /* Center content vertically */
   padding: 120px 30px;
   border-radius: 15px;
   margin: 50px 30px;
@@ -134,30 +135,38 @@ body::before {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
+.main-section .text-content {
+  flex: 1;
+  text-align: left;
+  display: flex;
+  flex-direction: column; 
+}
+
 .main-section h1 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Montserrat', sans-serif; 
   font-size: 3.5em;
   line-height: 1.3;
   margin-bottom: 25px;
   text-shadow: 2px 4px 5px rgba(0, 0, 0, 0.4);
-  animation: fadeInUp 1.5s ease;
+  animation: fadeInUp 2.5s ease;
 }
 
 .main-section p {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Open Sans', sans-serif; 
   font-size: 1.3em;
   margin-bottom: 50px;
   animation: fadeInUp 1.8s ease;
 }
 
+/* Main buttons fixed */
 .main-buttons {
   display: flex;
-  justify-content: center;
+  justify-content: left;
   gap: 25px;
 }
 
-.explore-btn, .contact-btn {
-  background-color: #009ab5;
+.main-buttons .explore-btn, .main-buttons .contact-btn {
+  background-color: #084ec6;
   border: 1px solid #fff;
   padding: 12px 25px;
   border-radius: 8px;
@@ -167,8 +176,8 @@ body::before {
   transition: background-color 0.3s, transform 0.3s;
 }
 
-.explore-btn:hover, .contact-btn:hover {
-  background-color: #ff3c3c;
+.main-buttons .explore-btn:hover, .main-buttons .contact-btn:hover {
+  background-color: #ef1010;
   transform: scale(1.1);
 }
 
