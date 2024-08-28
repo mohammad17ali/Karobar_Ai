@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:karobar/nav_bar/edititem.dart';
+import 'package:karobar/nav_bar/edititem.dart'; // Assuming this is the correct path
 
 class Record {
   final String id;
@@ -119,6 +119,7 @@ class _SnacksState extends State<Snacks> {
                         quantity: record.quantity,
                         remaining: 350, // Replace with actual remaining value
                         popularity: 3, // Replace with actual popularity value
+                        record: record, // Pass the record to the card
                       );
                     },
                   ),
@@ -133,6 +134,7 @@ class _SnacksState extends State<Snacks> {
     required int quantity,
     required int remaining,
     required double popularity,
+    required Record record,
   }) {
     double screenWidth = MediaQuery.of(context).size.width;
     bool isSmallScreen = screenWidth < 600;
@@ -211,13 +213,12 @@ class _SnacksState extends State<Snacks> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => Edititem(key:ValueKey),
-                        //   ),
-                        // );
-                        // Implement edit functionality
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Edititem(record: record),
+                          ),
+                        );
                       },
                       style: ButtonStyle(
                         backgroundColor:
@@ -258,7 +259,3 @@ class _SnacksState extends State<Snacks> {
     );
   }
 }
-
-void main() => runApp(MaterialApp(
-      home: Snacks(),
-    ));
