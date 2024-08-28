@@ -1,9 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
 
 class AddNewItemPage extends StatefulWidget {
   const AddNewItemPage({Key? key}) : super(key: key);
@@ -82,43 +81,57 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
       _isLoading = true;
     });
 
-    final base64Image = base64Encode(_imageFile!.readAsBytesSync());
-    final url = Uri.parse(
-        'https://api.airtable.com/v0/appgAln53ifPLiXNu/Items'); // Replace with your API endpoint
+    // This URL should be the URL where the image is hosted or the location it will be uploaded to.
+    final String imageUrl =
+        'https://your-image-hosting-service.com/path-to-image.jpg'; // Use actual URL here
+
+    final url =
+        Uri.parse('https://api.airtable.com/v0/appgAln53ifPLiXNu/Items');
 
     final headers = {
-      'Authorization': 'Bearer YOUR_API_KEY', // Replace with your API key
+      'Authorization':
+          'Bearer your_api_key', // Replace with your actual API key
       'Content-Type': 'application/json',
     };
 
     final body = json.encode({
-      'itemName': itemNameController.text,
-      'price': double.parse(priceController.text),
-      'quantity': int.parse(quantityController.text),
-      'category': _selectedCategory,
-      'image': 'data:image/jpeg;base64,$base64Image',
+      "records": [
+        {
+          "fields": {
+            "Item Name": itemNameController.text,
+            "Price": double.parse(priceController.text),
+            "Picture": [
+              {
+                "url": imageUrl, // Use the hosted image URL here
+              }
+            ],
+            "Quantity": int.parse(quantityController.text),
+            "Category": _selectedCategory
+          }
+        }
+      ]
     });
 
     try {
       final response = await http.post(url, headers: headers, body: body);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         _showAlertDialog('Success', 'Item added successfully.');
       } else {
         _showAlertDialog(
-            'Error', 'Failed to add item. Please try again later.');
+            'Error', 'Failed to add item. Error code: ${response.statusCode}');
       }
-    } on SocketException catch (e) {
+    } on SocketException {
       _showAlertDialog('Network Error',
           'Failed to connect to the server. Please check your network connection and try again.');
     } catch (e) {
       _showAlertDialog(
-          'Error', 'An unexpected error occurred. Please try again.');
+          'Error', 'An unexpected error occurred. Error details: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   void _showAlertDialog(String title, String content) {
@@ -301,47 +314,40 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
                                       Text(
                                         'Click on the picture',
                                         style: TextStyle(
+                                          fontSize: isSmallScreen ? 16 : 20,
                                           color: Colors.grey[700],
-                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      Text(
+                                        'to add',
+                                        style: TextStyle(
+                                          fontSize: isSmallScreen ? 16 : 20,
+                                          color: Colors.grey[700],
                                         ),
                                       ),
                                     ],
                                   )
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.circular(15),
-                                    child: Image.file(
-                                      _imageFile!,
-                                      height: 200,
-                                      fit: BoxFit.cover,
-                                    ),
+                                : Image.file(
+                                    _imageFile!,
+                                    fit: BoxFit.cover,
                                   ),
                           ),
                         ),
                         SizedBox(height: isSmallScreen ? 20 : 30),
                         ElevatedButton(
                           onPressed: _addItem,
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                Color(0xFF195DAD)),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                            ),
-                            padding:
-                                MaterialStateProperty.all<EdgeInsetsGeometry>(
-                              EdgeInsets.symmetric(
-                                vertical: isSmallScreen ? 14.0 : 20.0,
-                                horizontal: 50.0,
-                              ),
-                            ),
-                          ),
                           child: Text(
                             'Add Item',
                             style: TextStyle(
-                                fontSize: isSmallScreen ? 16 : 20,
-                                color: Colors.white),
+                              fontSize: isSmallScreen ? 18 : 22,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            backgroundColor: Color(0xFF043F84),
                           ),
                         ),
                       ],
@@ -350,42 +356,30 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
                 ),
               ),
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        child: Icon(
-          Icons.arrow_back,
-          color: Colors.white,
-        ),
-        backgroundColor: Color(0xFF195DAD),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
-  Future<void> _showImageSourceSelection(BuildContext context) async {
-    await showModalBottomSheet(
+  void _showImageSourceSelection(BuildContext context) {
+    showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
+          child: Wrap(
+            children: [
               ListTile(
-                leading: Icon(Icons.camera_alt),
-                title: Text('Take a picture'),
+                leading: Icon(Icons.photo_library),
+                title: Text('Gallery'),
                 onTap: () {
-                  Navigator.pop(context);
-                  _captureImage();
+                  _uploadImage();
+                  Navigator.of(context).pop();
                 },
               ),
               ListTile(
-                leading: Icon(Icons.photo_library),
-                title: Text('Choose from gallery'),
+                leading: Icon(Icons.photo_camera),
+                title: Text('Camera'),
                 onTap: () {
-                  Navigator.pop(context);
-                  _uploadImage();
+                  _captureImage();
+                  Navigator.of(context).pop();
                 },
               ),
             ],

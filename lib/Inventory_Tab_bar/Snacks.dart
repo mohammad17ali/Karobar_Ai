@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:karobar/nav_bar/edititem.dart';
 
 class Record {
   final String id;
@@ -72,6 +73,8 @@ class _SnacksState extends State<Snacks> {
         Map<String, dynamic> json = jsonDecode(response.body);
         List<Record> recordsList = (json['records'] as List)
             .map((data) => Record.fromJson(data))
+            .where(
+                (record) => record.category == "Snacks") // Filter by "Snacks"
             .toList();
         setState(() {
           records = recordsList;
@@ -208,6 +211,12 @@ class _SnacksState extends State<Snacks> {
                     ),
                     ElevatedButton(
                       onPressed: () {
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => Edititem(key:ValueKey),
+                        //   ),
+                        // );
                         // Implement edit functionality
                       },
                       style: ButtonStyle(

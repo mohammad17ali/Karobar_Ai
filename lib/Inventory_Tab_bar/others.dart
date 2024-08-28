@@ -1,4 +1,39 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+class Record {
+  final String id;
+  final String pictureUrl;
+  final String itemName;
+  final int price;
+  final int quantity;
+  final String category;
+  final String itemID;
+
+  Record({
+    required this.id,
+    required this.pictureUrl,
+    required this.itemName,
+    required this.price,
+    required this.quantity,
+    required this.category,
+    required this.itemID,
+  });
+
+  factory Record.fromJson(Map<String, dynamic> json) {
+    final fields = json['fields'];
+    return Record(
+      id: json['id'],
+      pictureUrl: fields['Picture']?.first['url'] ?? '',
+      itemName: fields['Item Name'] ?? '',
+      price: fields['Price'] ?? 0,
+      quantity: fields['Quantity'] ?? 0,
+      category: fields['Category'] ?? '',
+      itemID: fields['ItemID'] ?? '',
+    );
+  }
+}
 
 class Others extends StatefulWidget {
   const Others({Key? key}) : super(key: key);
@@ -8,53 +43,84 @@ class Others extends StatefulWidget {
 }
 
 class _OthersState extends State<Others> {
+  List<Record>? records;
+  bool isLoading = false;
+  bool isFetched = false; // Track if data has been fetched
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRecords();
+  }
+
+  Future<void> fetchRecords() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://api.airtable.com/v0/appgAln53ifPLiXNu/tblvBQeCreDaryIPs'),
+        headers: {
+          'Authorization':
+              'Bearer patXmwDbTcQr2K1lJ.de9224db382239bd6b93f162a21d6b0db884233ee5f59ab1458e5851b6764451',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
+        List<Record> recordsList = (json['records'] as List)
+            .map((data) => Record.fromJson(data))
+            .where(
+                (record) => record.category == "Others") // Filter by "Others"
+            .toList();
+        setState(() {
+          records = recordsList;
+          isFetched = true; // Mark data as fetched
+        });
+      } else {
+        throw Exception('Failed to load records');
+      }
+    } catch (e) {
+      // Handle error
+      setState(() {
+        records = [];
+        isFetched =
+            true; // Even if an error occurs, mark as fetched to avoid retries
+      });
+      print('Error: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         color: Color(0xFFEEFFFF),
-        child: ListView(
-          padding: EdgeInsets.all(30.0),
-          children: [
-            _buildInventoryCard(
-              itemName: 'Tea',
-              imageUrl:
-                  'https://assets.cntraveller.in/photos/60ba2522c28d168a1ec862a3/4:3/w_1440,h_1080,c_limit/Tea-.jpg',
-              price: 10,
-              quantity: 5,
-              remaining: 10,
-              popularity: 4.5,
-            ),
-            _buildInventoryCard(
-              itemName: 'Lays',
-              imageUrl:
-                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkSQbRxx2qEAmDgEuxUxx9tmqG0xidZ-x7iA&s',
-              price: 20,
-              quantity: 3,
-              remaining: 7,
-              popularity: 4.2,
-            ),
-            _buildInventoryCard(
-              itemName: 'Juice',
-              imageUrl:
-                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHPQtpGR-DhK_2eZ6pROYIw0xSq3_Mkwj0Lw&s',
-              price: 60,
-              quantity: 3,
-              remaining: 7,
-              popularity: 4.2,
-            ),
-            _buildInventoryCard(
-              itemName: 'Juice',
-              imageUrl:
-                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHPQtpGR-DhK_2eZ6pROYIw0xSq3_Mkwj0Lw&s',
-              price: 60,
-              quantity: 3,
-              remaining: 7,
-              popularity: 4.2,
-            ),
-            // Add more cards as needed
-          ],
-        ),
+        child: isLoading && !isFetched
+            ? Center(child: CircularProgressIndicator())
+            : records == null || records!.isEmpty
+                ? Center(child: Text('No records found.'))
+                : ListView.builder(
+                    padding: EdgeInsets.all(30.0),
+                    itemCount: records!.length,
+                    itemBuilder: (context, index) {
+                      final record = records![index];
+                      return _buildInventoryCard(
+                        itemName: record.itemName,
+                        imageUrl: record.pictureUrl,
+                        price: record.price,
+                        quantity: record.quantity,
+                        remaining: 10, // Replace with actual remaining value
+                        popularity: 4.5, // Replace with actual popularity value
+                      );
+                    },
+                  ),
       ),
     );
   }
@@ -117,7 +183,7 @@ class _OthersState extends State<Others> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildInfoRow('Price', '$price'),
+                          _buildInfoRow('Price', '₹$price'),
                           _buildInfoRow('Quantity', quantity.toString()),
                           _buildInfoRow('Remaining', remaining.toString()),
                           _buildInfoRow('Popularity', popularity.toString()),
@@ -127,7 +193,6 @@ class _OthersState extends State<Others> {
                   ],
                 ),
               ),
-              // SizedBox(height: 5),
               Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

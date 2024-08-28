@@ -40,6 +40,46 @@ class _OrderSummaryState extends State<OrderSummary> {
     }
   }
 
+  Future<void> updateItemQuantity({
+    required String orderItemId,
+    required int quantity,
+  }) async {
+    final String url =
+        'https://api.airtable.com/v0/appgAln53ifPLiXNu/OrderItems';
+
+    try {
+      final response = await http.patch(
+        Uri.parse(url),
+        headers: {
+          'Authorization':
+              'Bearer patXmwDbTcQr2K1lJ.de9224db382239bd6b93f162a21d6b0db884233ee5f59ab1458e5851b6764451',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "records": [
+            {
+              "id": orderItemId,
+              "fields": {
+                "Quantity": quantity,
+              }
+            }
+          ]
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update item quantity');
+      }
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error occurred while updating quantity.'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,8 +106,11 @@ class _OrderSummaryState extends State<OrderSummary> {
                           itemCount: items.length,
                           itemBuilder: (context, index) {
                             final item = items[index]['fields'];
+                            final orderItemId =
+                                items[index]['id']; // Get the order item ID
                             final imageUrl =
                                 'https://example.com/images/${item['ItemID']}.png'; // Example URL, replace with actual
+
                             return Card(
                               color: Colors.blue[100],
                               elevation: 4,
@@ -87,8 +130,11 @@ class _OrderSummaryState extends State<OrderSummary> {
                                       width: 50,
                                       errorBuilder:
                                           (context, error, stackTrace) {
-                                        return Icon(Icons.broken_image,
-                                            color: Colors.grey, size: 50);
+                                        return const Icon(
+                                          Icons.broken_image,
+                                          color: Colors.grey,
+                                          size: 50,
+                                        );
                                       },
                                     ),
                                     const SizedBox(width: 5),
@@ -119,14 +165,15 @@ class _OrderSummaryState extends State<OrderSummary> {
                                     Row(
                                       children: [
                                         _buildQuantityButton(Icons.remove, () {
-                                          setState(() {
-                                            if (item['Quantity'] > 1) {
+                                          if (item['Quantity'] > 1) {
+                                            setState(() {
                                               item['Quantity']--;
-                                              item['TotalPrice'] =
-                                                  item['Quantity'] *
-                                                      item['ItemPrice'];
-                                            }
-                                          });
+                                            });
+                                            updateItemQuantity(
+                                              orderItemId: orderItemId,
+                                              quantity: item['Quantity'],
+                                            );
+                                          }
                                         }),
                                         Container(
                                           padding: const EdgeInsets.symmetric(
@@ -143,10 +190,11 @@ class _OrderSummaryState extends State<OrderSummary> {
                                         _buildQuantityButton(Icons.add, () {
                                           setState(() {
                                             item['Quantity']++;
-                                            item['TotalPrice'] =
-                                                item['Quantity'] *
-                                                    item['ItemPrice'];
                                           });
+                                          updateItemQuantity(
+                                            orderItemId: orderItemId,
+                                            quantity: item['Quantity'],
+                                          );
                                         }),
                                       ],
                                     ),

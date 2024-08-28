@@ -1,4 +1,39 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+class Record {
+  final String id;
+  final String pictureUrl;
+  final String itemName;
+  final int price;
+  final int quantity;
+  final String category;
+  final String itemID;
+
+  Record({
+    required this.id,
+    required this.pictureUrl,
+    required this.itemName,
+    required this.price,
+    required this.quantity,
+    required this.category,
+    required this.itemID,
+  });
+
+  factory Record.fromJson(Map<String, dynamic> json) {
+    final fields = json['fields'];
+    return Record(
+      id: json['id'],
+      pictureUrl: fields['Picture']?.first['url'] ?? '',
+      itemName: fields['Item Name'] ?? '',
+      price: fields['Price'] ?? 0,
+      quantity: fields['Quantity'] ?? 0,
+      category: fields['Category'] ?? '',
+      itemID: fields['ItemID'] ?? '',
+    );
+  }
+}
 
 class FastFood extends StatefulWidget {
   const FastFood({Key? key}) : super(key: key);
@@ -8,44 +43,84 @@ class FastFood extends StatefulWidget {
 }
 
 class _FastFoodState extends State<FastFood> {
+  List<Record>? records;
+  bool isLoading = false;
+  bool isFetched = false; // Track if data has been fetched
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRecords();
+  }
+
+  Future<void> fetchRecords() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://api.airtable.com/v0/appgAln53ifPLiXNu/tblvBQeCreDaryIPs'),
+        headers: {
+          'Authorization':
+              'Bearer patXmwDbTcQr2K1lJ.de9224db382239bd6b93f162a21d6b0db884233ee5f59ab1458e5851b6764451',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> json = jsonDecode(response.body);
+        List<Record> recordsList = (json['records'] as List)
+            .map((data) => Record.fromJson(data))
+            .where((record) =>
+                record.category == "Fast Food") // Filter by "Fast Food"
+            .toList();
+        setState(() {
+          records = recordsList;
+          isFetched = true; // Mark data as fetched
+        });
+      } else {
+        throw Exception('Failed to load records');
+      }
+    } catch (e) {
+      // Handle error
+      setState(() {
+        records = [];
+        isFetched =
+            true; // Even if an error occurs, mark as fetched to avoid retries
+      });
+      print('Error: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         color: Color(0xFFEEFFFF),
-        child: ListView(
-          padding: EdgeInsets.all(30.0),
-          children: [
-            _buildInventoryCard(
-              itemName: 'Pani Puri',
-              imageUrl:
-                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfLf40t2rOzTqiIY0Br3Pnmm3WmSP9e09ggA&s',
-              price: 10,
-              quantity: 5,
-              remaining: 10,
-              popularity: 4.5,
-            ),
-            _buildInventoryCard(
-              itemName: 'Kalan',
-              imageUrl:
-                  'https://www.jinooskitchen.com/wp-content/uploads/2020/04/roadside-kalan-manchurian-recipe.jpg',
-              price: 20,
-              quantity: 3,
-              remaining: 7,
-              popularity: 4.2,
-            ),
-            _buildInventoryCard(
-              itemName: 'Chicken Rice',
-              imageUrl:
-                  'https://www.kannammacooks.com/wp-content/uploads/street-style-chicken-rice-recipe-1-3.jpg',
-              price: 60,
-              quantity: 3,
-              remaining: 7,
-              popularity: 4.2,
-            ),
-            // Add more cards as needed
-          ],
-        ),
+        child: isLoading && !isFetched
+            ? Center(child: CircularProgressIndicator())
+            : records == null || records!.isEmpty
+                ? Center(child: Text('No records found.'))
+                : ListView.builder(
+                    padding: EdgeInsets.all(30.0),
+                    itemCount: records!.length,
+                    itemBuilder: (context, index) {
+                      final record = records![index];
+                      return _buildInventoryCard(
+                        itemName: record.itemName,
+                        imageUrl: record.pictureUrl,
+                        price: record.price,
+                        quantity: record.quantity,
+                        remaining: 10, // Replace with actual remaining value
+                        popularity: 4.5, // Replace with actual popularity value
+                      );
+                    },
+                  ),
       ),
     );
   }
@@ -108,7 +183,7 @@ class _FastFoodState extends State<FastFood> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildInfoRow('Price', '$price'),
+                          _buildInfoRow('Price', '₹$price'),
                           _buildInfoRow('Quantity', quantity.toString()),
                           _buildInfoRow('Remaining', remaining.toString()),
                           _buildInfoRow('Popularity', popularity.toString()),
@@ -118,7 +193,6 @@ class _FastFoodState extends State<FastFood> {
                   ],
                 ),
               ),
-              // SizedBox(height: 5),
               Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

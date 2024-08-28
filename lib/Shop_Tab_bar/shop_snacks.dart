@@ -7,6 +7,7 @@ class Record {
   final String pictureUrl;
   final int price;
   final String itemName;
+  final String category; // Add category field
   int quantity;
   String? orderItemId; // To store the Order Item ID after it's added
 
@@ -15,6 +16,7 @@ class Record {
     required this.pictureUrl,
     required this.price,
     required this.itemName,
+    required this.category, // Initialize category
     this.quantity = 0, // Default to 0
     this.orderItemId, // Nullable because it might not exist yet
   });
@@ -26,6 +28,9 @@ class Record {
         pictureList.isNotEmpty ? pictureList[0]['url'] ?? '' : '';
     final price = fields['Price'] ?? 0;
     final itemName = fields['Item Name'] ?? 'Unknown Item';
+    final category = fields['Category'] ??
+        'Unknown'; // Assuming "Category" is the field name in your Airtable
+
     final id = json['id'] ?? '';
 
     return Record(
@@ -33,6 +38,7 @@ class Record {
       pictureUrl: pictureUrl,
       price: price,
       itemName: itemName,
+      category: category, // Set category
     );
   }
 }
@@ -65,10 +71,16 @@ class _ShopSnacksState extends State<ShopSnacks> {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> json = jsonDecode(response.body);
-      List<Record> records = (json['records'] as List).map((data) {
+      List<Record> allRecords = (json['records'] as List).map((data) {
         return Record.fromJson(data);
       }).toList();
-      return records;
+
+      // Filter the records to include only those in the "Snacks" category
+      List<Record> snackRecords = allRecords.where((record) {
+        return record.category == "Snacks";
+      }).toList();
+
+      return snackRecords;
     } else {
       throw Exception('Failed to load records');
     }
@@ -259,67 +271,119 @@ class _ShopSnacksState extends State<ShopSnacks> {
                     color: Color(0xFF195DAD),
                   ),
                 ),
-                record.quantity > 0
-                    ? _buildQuantitySelector(record)
-                    : ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            record.quantity = 1;
-                          });
-                          addItemToOrder(record: record);
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              const Color(0xFF195DAD)),
-                          foregroundColor:
-                              MaterialStateProperty.all<Color>(Colors.white),
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
+                SizedBox(
+                  width: 110, // Fixed width for both buttons
+                  height: 40, // Fixed height for both buttons
+                  child: record.quantity > 0
+                      ? _buildQuantitySelector(record)
+                      : ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              record.quantity = 1;
+                            });
+                            addItemToOrder(record: record);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF195DAD),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                          ),
+                          child: const Text(
+                            'ADD',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
                           ),
                         ),
-                        child:
-                            const Text('Add', style: TextStyle(fontSize: 20)),
-                      ),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 10.0),
+          const SizedBox(height: 10),
         ],
       ),
     );
   }
 
   Widget _buildQuantitySelector(Record record) {
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () {
-            setState(() {
-              if (record.quantity > 1) {
-                record.quantity--;
-                updateItemQuantity(record: record);
-              }
-            });
-          },
-          icon: const Icon(Icons.remove_circle_outline),
-        ),
-        Text(
-          '${record.quantity}',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        IconButton(
-          onPressed: () {
-            setState(() {
-              record.quantity++;
-              updateItemQuantity(record: record);
-            });
-          },
-          icon: const Icon(Icons.add_circle_outline),
-        ),
-      ],
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white, // White background
+        borderRadius: BorderRadius.circular(30.0), // Rounded corners
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5), // Shadow color
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3), // Position of shadow
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          InkWell(
+            onTap: () {
+              setState(() {
+                if (record.quantity > 0) {
+                  record.quantity--;
+                  if (record.orderItemId != null) {
+                    updateItemQuantity(record: record);
+                  }
+                }
+              });
+            },
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+              child: const Text(
+                '-',
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF195DAD),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              record.quantity.toString(),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Color(0xFF195DAD),
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () {
+              setState(() {
+                record.quantity++;
+                if (record.orderItemId != null) {
+                  updateItemQuantity(record: record);
+                }
+              });
+            },
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+              child: const Text(
+                '+',
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF195DAD),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
