@@ -233,4 +233,5 @@ body::before {
 .app-prototype {
   animation: slideInAppPrototype 2s cubic-bezier(0.42, 0, 0.58, 1) forwards; /* Smooth and continuous easing with a forward fill */
   transform: translateX(-200px); /* Final position to match the animation end state */
+  
 }
