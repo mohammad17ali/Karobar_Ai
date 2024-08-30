@@ -1,5 +1,7 @@
 import React, { useRef } from 'react';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import './App.css';
+import AboutUs from './AboutUs';
 
 function App() {
   const aboutUsRef = useRef(null);
@@ -8,46 +10,53 @@ function App() {
     window.location.href = 'https://drive.google.com/file/d/13OCwZ73dFg3Z3br_nYG08jYemitLDcqY/view';
   };
 
-  const scrollToAboutUs = () => {
-    aboutUsRef.current.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
-    <div className="App">
-      <div className="navbar">
-        <div className="logo">
-          <img src={`${process.env.PUBLIC_URL}/Logo.png`} alt="Karobar Ai Logo" />
-          <div className="logo-text">Intelligent Shop Solutions</div>
-        </div>
-        <div className="nav-links">
-          <a href="#" onClick={scrollToAboutUs}>About</a>
-          <a href="#">Solutions</a>
-          <a href="#">Resources</a>
-          <a href="#">Download</a>
-        </div>
-        <div className="right-links">
-          <a href="#">Contact us</a>
-          <button className="demo-btn" onClick={handleDemoClick}>Explore demo</button>
-        </div>
-      </div>
-      <div className="main-section">
-        <div className="text-content">
-          <h1>
-            Revolutionizing<br />
-            retail with <br />
-            <span className="bold-text">Intelligent solutions.</span>
-          </h1>
-          <p>Empowering retailers with innovative technology solutions<br /> to enhance customer experiences and drive growth.</p>
-          <div className="main-buttons">
-            <button className="explore-btn" onClick={handleDemoClick}>Explore demo</button>
-            <button className="contact-btn">Contact us</button>
+    <Router>
+      <div className="App">
+        <div className="navbar">
+          <div className="logo">
+            {/* Wrap the logo image with the Link component */}
+            <Link to="/">
+              <img src={`${process.env.PUBLIC_URL}/Logo.png`} alt="Karobar Ai Logo" />
+            </Link>
+            <div className="logo-text">Intelligent Shop Solutions</div>
+          </div>
+          <div className="nav-links">
+            <Link to="/about-us">About</Link>
+            <Link to="#">Solutions</Link>
+            <Link to="#">Resources</Link>
+            <Link to="#">Download</Link>
+          </div>
+          <div className="right-links">
+            <Link to="#">Contact us</Link>
+            <button className="demo-btn" onClick={handleDemoClick}>Explore demo</button>
           </div>
         </div>
-        <div className="app-prototype">
-          <img src={`${process.env.PUBLIC_URL}/ui-left.png`} alt="App Prototype" />
-        </div>
+
+        <Routes>
+          <Route path="/" element={
+            <div className="main-section">
+              <div className="text-content">
+                <h1>
+                  Revolutionizing<br />
+                  retail with <br />
+                  <span className="bold-text">Intelligent solutions.</span>
+                </h1>
+                <p>Empowering retailers with innovative technology solutions<br /> to enhance customer experiences and drive growth.</p>
+                <div className="main-buttons">
+                  <button className="explore-btn" onClick={handleDemoClick}>Explore demo</button>
+                  <button className="contact-btn">Contact us</button>
+                </div>
+              </div>
+              <div className="app-prototype">
+                <img src={`${process.env.PUBLIC_URL}/ui-left.png`} alt="App Prototype" />
+              </div>
+            </div>
+          } />
+          <Route path="/about-us" element={<AboutUs />} />
+        </Routes>
       </div>
-    </div>
+    </Router>
   );
 }
 
