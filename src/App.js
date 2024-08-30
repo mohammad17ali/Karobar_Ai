@@ -31,15 +31,20 @@ function App() {
         </div>
       </div>
       <div className="main-section">
-        <h1>
-          Revolutionizing<br />
-          retail with <br />
-          <span className="bold-text">Intelligent solutions.</span>
-        </h1>
-        <p>Empowering retailers with innovative technology solutions<br /> to enhance customer experiences and drive growth.</p>
-        <div className="main-buttons">
-          <button className="explore-btn" onClick={handleDemoClick}>Explore demo</button>
-          <button className="contact-btn">Contact us</button>
+        <div className="text-content">
+          <h1>
+            Revolutionizing<br />
+            retail with <br />
+            <span className="bold-text">Intelligent solutions.</span>
+          </h1>
+          <p>Empowering retailers with innovative technology solutions<br /> to enhance customer experiences and drive growth.</p>
+          <div className="main-buttons">
+            <button className="explore-btn" onClick={handleDemoClick}>Explore demo</button>
+            <button className="contact-btn">Contact us</button>
+          </div>
+        </div>
+        <div className="app-prototype">
+          <img src={`${process.env.PUBLIC_URL}/ui-left.png`} alt="App Prototype" />
         </div>
       </div>
     </div>
