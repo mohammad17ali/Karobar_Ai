@@ -110,7 +110,7 @@ body::before {
   background-color: #084ec6;
   border: none;
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 20px;
   color: white;
   font-weight: bold;
   cursor: pointer;
@@ -170,7 +170,7 @@ body::before {
   background-color: #084ec6;
   border: none;
   padding: 12px 25px;
-  border-radius: 8px;
+  border-radius: 20px;
   color: white;
   font-weight: bold;
   cursor: pointer;
@@ -186,7 +186,7 @@ body::before {
 /* Adjusted styling for the app prototype */
 .app-prototype {
   flex: 1; /* Adjusted flexible space */
-  max-width: 420px; /* Size of the app prototype */
+  max-width: 350px; /* Size of the app prototype */
   margin-top: -70px; /* Move the prototype slightly upwards */
   display: flex;
   justify-content: flex-end; /* Align the image to the right */
@@ -233,4 +233,14 @@ body::before {
 .app-prototype {
   animation: slideInAppPrototype 2s cubic-bezier(0.42, 0, 0.58, 1) forwards; /* Smooth and continuous easing with a forward fill */
   transform: translateX(-200px); /* Final position to match the animation end state */
+}
+
+/* this is for the solutions */
+/* Ensure smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+#solutions {
+  margin-top: 100px; /* Adds some space between the main section and solutions section */
 }

@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import './App.css';
-import AboutUs from './AboutUs';
+import AboutUs from './AboutUs'; // Ensure AboutUs component is correctly imported
+import ContactUs from './ContactUs'; // Ensure ContactUs component is correctly imported
 
 function App() {
   const aboutUsRef = useRef(null);
@@ -15,7 +16,6 @@ function App() {
       <div className="App">
         <div className="navbar">
           <div className="logo">
-            {/* Wrap the logo image with the Link component */}
             <Link to="/">
               <img src={`${process.env.PUBLIC_URL}/Logo.png`} alt="Karobar Ai Logo" />
             </Link>
@@ -28,7 +28,7 @@ function App() {
             <Link to="#">Download</Link>
           </div>
           <div className="right-links">
-            <Link to="#">Contact us</Link>
+            <Link to="/contact-us">Contact us</Link>
             <button className="demo-btn" onClick={handleDemoClick}>Explore demo</button>
           </div>
         </div>
@@ -45,7 +45,7 @@ function App() {
                 <p>Empowering retailers with innovative technology solutions<br /> to enhance customer experiences and drive growth.</p>
                 <div className="main-buttons">
                   <button className="explore-btn" onClick={handleDemoClick}>Explore demo</button>
-                  <button className="contact-btn">Contact us</button>
+                  <Link to="/contact-us"><button className="contact-btn">Contact us</button></Link>
                 </div>
               </div>
               <div className="app-prototype">
@@ -54,6 +54,7 @@ function App() {
             </div>
           } />
           <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/contact-us" element={<ContactUs />} />
         </Routes>
       </div>
     </Router>

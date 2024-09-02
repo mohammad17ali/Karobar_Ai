@@ -1,8 +1,8 @@
 /* Container Styling */
 .about-us-container {
   position: relative;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.7));
-  padding: 60px 40px;
+  background: radial-gradient(circle at var(--gradient-x, 50%) var(--gradient-y, 50%), rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.7));
+  padding: 0px ;
   color: white;
   min-height: 100vh;
   font-family: 'Poppins', Arial, sans-serif;
