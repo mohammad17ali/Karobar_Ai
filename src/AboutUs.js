@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import './AboutUs.css';
-
 function AboutUs() {
   useEffect(() => {
     const handleMouseMove = (e) => {
