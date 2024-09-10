@@ -5,6 +5,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'dart:convert';
 
 class RecordPage extends StatefulWidget {
   @override
@@ -210,25 +212,39 @@ class _RecordPageState extends State<RecordPage> with TickerProviderStateMixin {
       request.fields['language_code'] = _selectedLanguage;
       request.fields['model'] = 'saarika:v1';
 
-      // Attach audio file
-      request.files.add(await http.MultipartFile.fromPath('file', _filePath));
+      // Attach audio file with correct MIME type
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          _filePath,
+          contentType: MediaType('audio', 'wav'), // Explicitly set MIME type
+        ),
+      );
 
       var response = await request.send();
 
       // Checking response status
       if (response.statusCode == 200) {
         String responseData = await response.stream.bytesToString();
+        var decodedResponse =
+            jsonDecode(responseData); // Decode the JSON response
+        String transcript =
+            decodedResponse['transcript']; // Extract the transcript
+        print('Transcript: $transcript');
         setState(() {
-          _apiResponse = 'Success: $responseData';
+          _apiResponse = ' $transcript'; // Update the UI with the transcript
         });
       } else {
         String errorData = await response.stream.bytesToString();
+        print(
+            'Failed to upload audio: ${response.statusCode}, error: $errorData');
         setState(() {
           _apiResponse =
               'Failed to upload audio: ${response.statusCode}, error: $errorData';
         });
       }
     } catch (e) {
+      print('Failed to upload audio: $e');
       setState(() {
         _apiResponse = 'Failed to upload audio: $e';
       });
@@ -268,7 +284,7 @@ class _RecordPageState extends State<RecordPage> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff043F84),
-        title: Text('Speak and Get Your Orders',
+        title: Text('Tell Me What You Want',
             style: TextStyle(color: Colors.white, fontSize: 24)),
       ),
       body: Center(
