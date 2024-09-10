@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../Inventory_Tab_bar/Snacks.dart'; // Adjust the path to where Record is defined
+import '../recordid.dart'; // Adjust the path to your Record model
 
 class Edititem extends StatefulWidget {
   final Record record;
@@ -57,6 +57,7 @@ class _EdititemState extends State<Edititem> {
           ],
           "Quantity": int.parse(_quantityController.text),
           "Category": _selectedCategory,
+          "ItemID": widget.record.itemID, // Ensure this is included if needed
         }
       }),
     );
@@ -72,7 +73,7 @@ class _EdititemState extends State<Edititem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Light blue background
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
           'Edit Item',
@@ -93,7 +94,7 @@ class _EdititemState extends State<Edititem> {
                   color: Colors.grey.withOpacity(0.5),
                   spreadRadius: 5,
                   blurRadius: 5,
-                  offset: Offset(0, 3), // changes position of shadow
+                  offset: Offset(0, 3),
                 ),
               ],
             ),
@@ -101,7 +102,7 @@ class _EdititemState extends State<Edititem> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 10), // Added height for increased box size
+                SizedBox(height: 10),
                 _buildTextField(
                     _itemNameController, 'Name of Item', 'e.g. Kurkure'),
                 SizedBox(height: 20),
@@ -150,7 +151,7 @@ class _EdititemState extends State<Edititem> {
                     ),
                   ),
                 ),
-                SizedBox(height: 10), // Added height for increased box size
+                SizedBox(height: 10),
               ],
             ),
           ),
@@ -170,8 +171,7 @@ class _EdititemState extends State<Edititem> {
         labelStyle: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
         border: UnderlineInputBorder(),
       ),
-      style: TextStyle(
-          fontSize: 30, fontWeight: FontWeight.bold), // Adjusted text style
+      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,
     );
   }
@@ -190,7 +190,7 @@ class _EdititemState extends State<Edititem> {
       style: TextStyle(
         fontSize: 30,
         fontWeight: FontWeight.bold,
-        color: Colors.black, // Set the default text color to black
+        color: Colors.black,
       ),
       items: _categories.map((String category) {
         return DropdownMenuItem<String>(
@@ -198,9 +198,8 @@ class _EdititemState extends State<Edititem> {
           child: Text(
             category,
             style: TextStyle(
-              color: _selectedCategory == category
-                  ? Colors.black
-                  : Colors.black87, // Change color based on selection
+              color:
+                  _selectedCategory == category ? Colors.black : Colors.black87,
             ),
           ),
         );
@@ -217,7 +216,7 @@ class _EdititemState extends State<Edititem> {
     return Column(
       children: [
         Container(
-          height: 180, // Increased height for the inner box
+          height: 180,
           width: 180,
           decoration: BoxDecoration(
             color: Color(0xFFA5CEFF),
@@ -228,8 +227,7 @@ class _EdititemState extends State<Edititem> {
                   child: Text(
                   'Picture Not Found',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: Colors.grey, fontSize: 16), // Adjusted text size
+                  style: TextStyle(color: Colors.grey, fontSize: 16),
                 ))
               : Image.network(
                   widget.record.pictureUrl,
@@ -239,8 +237,7 @@ class _EdititemState extends State<Edititem> {
         SizedBox(height: 10),
         Text(
           'Click on the picture',
-          style:
-              TextStyle(color: Colors.grey, fontSize: 16), // Adjusted text size
+          style: TextStyle(color: Colors.grey, fontSize: 16),
         ),
       ],
     );

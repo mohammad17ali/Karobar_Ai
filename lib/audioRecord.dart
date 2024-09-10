@@ -4,6 +4,7 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 
 class RecordPage extends StatefulWidget {
   @override
@@ -22,6 +23,22 @@ class _RecordPageState extends State<RecordPage> with TickerProviderStateMixin {
   double _playbackDuration = 0.0;
   late AnimationController _lottieController;
 
+  String _selectedLanguage = 'hi-IN';
+  String _apiResponse = '';
+
+  final _languages = [
+    'hi-IN',
+    'bn-IN',
+    'kn-IN',
+    'ml-IN',
+    'mr-IN',
+    'od-IN',
+    'pa-IN',
+    'ta-IN',
+    'te-IN',
+    'gu-IN'
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -37,7 +54,8 @@ class _RecordPageState extends State<RecordPage> with TickerProviderStateMixin {
   Future<void> _initializePaths() async {
     final directory = await getTemporaryDirectory();
     setState(() {
-      _filePath = '${directory.path}/audio_example.aac';
+      _filePath =
+          '${directory.path}/audio_example.wav'; // Changed to .wav for wider support
     });
   }
 
@@ -114,6 +132,7 @@ class _RecordPageState extends State<RecordPage> with TickerProviderStateMixin {
       try {
         await _recorder!.startRecorder(
           toFile: _filePath,
+          // Change the codec to aacMP4 or another compatible one
         );
         setState(() {
           _isRecording = true;
@@ -140,6 +159,8 @@ class _RecordPageState extends State<RecordPage> with TickerProviderStateMixin {
         });
         _stopTimer();
         _lottieController.stop(); // Stop Lottie animation
+        // After stopping, send the audio file to the API
+        await _sendAudioToAPI();
       } catch (e) {
         print('Error stopping recorder: $e');
       }
@@ -172,6 +193,45 @@ class _RecordPageState extends State<RecordPage> with TickerProviderStateMixin {
       }
     } else {
       print('Player is already playing');
+    }
+  }
+
+  Future<void> _sendAudioToAPI() async {
+    try {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('https://api.sarvam.ai/speech-to-text'),
+      );
+
+      request.headers['api-subscription-key'] =
+          '690911d6-a461-43e2-94db-74e789f7f418';
+
+      // Add language and model fields
+      request.fields['language_code'] = _selectedLanguage;
+      request.fields['model'] = 'saarika:v1';
+
+      // Attach audio file
+      request.files.add(await http.MultipartFile.fromPath('file', _filePath));
+
+      var response = await request.send();
+
+      // Checking response status
+      if (response.statusCode == 200) {
+        String responseData = await response.stream.bytesToString();
+        setState(() {
+          _apiResponse = 'Success: $responseData';
+        });
+      } else {
+        String errorData = await response.stream.bytesToString();
+        setState(() {
+          _apiResponse =
+              'Failed to upload audio: ${response.statusCode}, error: $errorData';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _apiResponse = 'Failed to upload audio: $e';
+      });
     }
   }
 
@@ -208,91 +268,81 @@ class _RecordPageState extends State<RecordPage> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff043F84),
-        title:
-            Text('Ledger', style: TextStyle(color: Colors.white, fontSize: 24)),
+        title: Text('Speak and Get Your Orders',
+            style: TextStyle(color: Colors.white, fontSize: 24)),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Speak Now...',
-                style: TextStyle(fontSize: 24, color: Color(0xff043F84))),
-            SizedBox(height: 20),
-            Lottie.asset(
-              'assets/recording_animation.json',
-              width: 200,
-              height: 200,
-              controller: _lottieController,
-            ),
-            SizedBox(height: 10),
-            Text(_timerText,
-                style: TextStyle(fontSize: 24, color: Colors.grey)),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _isRecording ? _stopRecording : _startRecording,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Speak Now...',
+                  style: TextStyle(fontSize: 24, color: Color(0xff043F84))),
+              SizedBox(height: 20),
+              Lottie.asset(
+                'assets/recording_animation.json',
+                width: 200,
+                height: 200,
+                controller: _lottieController,
               ),
-              child: Text(_isRecording ? 'Stop Recording' : 'Start Recording',
-                  style: TextStyle(fontSize: 20)),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _playRecording,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff043F84),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+              SizedBox(height: 10),
+              Text(_timerText,
+                  style: TextStyle(fontSize: 24, color: Colors.grey)),
+              SizedBox(height: 20),
+              DropdownButton<String>(
+                value: _selectedLanguage,
+                items: _languages.map((String language) {
+                  return DropdownMenuItem<String>(
+                    value: language,
+                    child: Text(language),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedLanguage = newValue!;
+                  });
+                },
               ),
-              child: Text('Play', style: TextStyle(fontSize: 20)),
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(_formatDuration(_playbackPosition ~/ 1000),
-                    style: TextStyle(fontSize: 16, color: Colors.grey)),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Slider(
-                    value: _playbackPosition,
-                    min: 0,
-                    max: _playbackDuration,
-                    onChanged: (newValue) {
-                      setState(() {
-                        _playbackPosition = newValue;
-                        _player!.seekToPlayer(
-                            Duration(milliseconds: newValue.toInt()));
-                      });
-                    },
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _isRecording ? _stopRecording : _startRecording,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                SizedBox(width: 10),
-                Text(_formatDuration((_playbackDuration ~/ 1000).toInt()),
-                    style: TextStyle(fontSize: 16, color: Colors.grey)),
-              ],
-            ),
-          ],
+                child: Text(
+                  _isRecording ? 'Stop Recording' : 'Start Recording',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _playRecording,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xff043F84),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(
+                  'Play Recording',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                _apiResponse,
+                style: TextStyle(color: Colors.green),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        label: Text('Place Order'),
-        icon: Icon(Icons.arrow_forward),
-        backgroundColor: Color(0xff043F84),
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: RecordPage(),
-  ));
 }

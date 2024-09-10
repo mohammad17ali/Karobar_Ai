@@ -80,6 +80,41 @@ class _OrderSummaryState extends State<OrderSummary> {
     }
   }
 
+  Future<void> deleteItem(String orderItemId, int index) async {
+    final String url =
+        'https://api.airtable.com/v0/appgAln53ifPLiXNu/OrderItems?records%5B%5D=$orderItemId';
+
+    try {
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          'Authorization':
+              'Bearer patXmwDbTcQr2K1lJ.de9224db382239bd6b93f162a21d6b0db884233ee5f59ab1458e5851b6764451',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          items.removeAt(index); // Remove the item from the local list
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Item deleted successfully.'),
+          ),
+        );
+      } else {
+        throw Exception('Failed to delete the item');
+      }
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error occurred while deleting the item.'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -208,6 +243,17 @@ class _OrderSummaryState extends State<OrderSummary> {
                                         fontWeight: FontWeight.bold,
                                         color: Colors.blue,
                                       ),
+                                    ),
+
+                                    // Delete Button
+                                    const SizedBox(width: 16),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.red,
+                                          size: 30), // Increased size to 30
+                                      onPressed: () {
+                                        deleteItem(orderItemId, index);
+                                      },
                                     ),
                                   ],
                                 ),

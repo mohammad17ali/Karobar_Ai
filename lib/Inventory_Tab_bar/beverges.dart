@@ -1,39 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
-class Record {
-  final String id;
-  final String pictureUrl;
-  final String itemName;
-  final int price;
-  final int quantity;
-  final String category;
-  final String itemID;
-
-  Record({
-    required this.id,
-    required this.pictureUrl,
-    required this.itemName,
-    required this.price,
-    required this.quantity,
-    required this.category,
-    required this.itemID,
-  });
-
-  factory Record.fromJson(Map<String, dynamic> json) {
-    final fields = json['fields'];
-    return Record(
-      id: json['id'],
-      pictureUrl: fields['Picture']?.first['url'] ?? '',
-      itemName: fields['Item Name'] ?? '',
-      price: fields['Price'] ?? 0,
-      quantity: fields['Quantity'] ?? 0,
-      category: fields['Category'] ?? '',
-      itemID: fields['ItemID'] ?? '',
-    );
-  }
-}
+import 'package:karobar/nav_bar/edititem.dart'; // Ensure the path is correct
+import '../recordid.dart'; // Ensure the path is correct
 
 class Beverages extends StatefulWidget {
   const Beverages({Key? key}) : super(key: key);
@@ -118,6 +87,7 @@ class _BeveragesState extends State<Beverages> {
                         quantity: record.quantity,
                         remaining: 10, // Replace with actual remaining value
                         popularity: 4.5, // Replace with actual popularity value
+                        record: record, // Pass the record to the card
                       );
                     },
                   ),
@@ -132,6 +102,7 @@ class _BeveragesState extends State<Beverages> {
     required int quantity,
     required int remaining,
     required double popularity,
+    required Record record,
   }) {
     double screenWidth = MediaQuery.of(context).size.width;
     bool isSmallScreen = screenWidth < 600;
@@ -209,7 +180,12 @@ class _BeveragesState extends State<Beverages> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      // Implement edit functionality
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Edititem(record: record),
+                        ),
+                      );
                     },
                     style: ButtonStyle(
                       backgroundColor:

@@ -3,7 +3,7 @@ import 'package:karobar/Inventory_Tab_bar/Snacks.dart';
 import 'package:karobar/Inventory_Tab_bar/beverges.dart';
 import 'package:karobar/Inventory_Tab_bar/fast_foot.dart';
 import 'package:karobar/Inventory_Tab_bar/others.dart';
-import 'package:karobar/Record.dart';
+import 'package:karobar/audioRecord.dart';
 import 'package:karobar/nav_bar/Addnewitem.dart';
 
 class InventoryPage extends StatefulWidget {

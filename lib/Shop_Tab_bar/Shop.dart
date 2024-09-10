@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:karobar/audioRecord.dart';
 import 'package:karobar/Shop_Tab_bar/shop_beverages.dart';
 import 'package:karobar/Shop_Tab_bar/shop_fastfood.dart';
 import 'package:karobar/Shop_Tab_bar/shop_others.dart';
@@ -174,31 +175,40 @@ class _InventoryPageState extends State<Shop> {
                 textStyle: TextStyle(fontSize: 20),
               ),
             ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 110,
-                  height: 110,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.mic, size: 60.0, color: Colors.white),
-                      Text(
-                        'Record',
-                        style: TextStyle(
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RecordPage()),
+                );
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 110,
+                    height: 110,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.mic, size: 60.0, color: Colors.white),
+                        Text(
+                          'Record',
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 15,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
