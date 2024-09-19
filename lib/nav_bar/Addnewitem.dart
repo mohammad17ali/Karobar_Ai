@@ -90,7 +90,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
 
     final headers = {
       'Authorization':
-          'Bearer your_api_key', // Replace with your actual API key
+          'Bearer patXmwDbTcQr2K1lJ.de9224db382239bd6b93f162a21d6b0db884233ee5f59ab1458e5851b6764451', // Replace with your actual API key
       'Content-Type': 'application/json',
     };
 

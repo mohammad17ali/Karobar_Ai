@@ -132,17 +132,13 @@ class _OrderSummaryState extends State<OrderSummary> {
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       children: [
-                        // List of order items
                         ListView.builder(
-                          shrinkWrap:
-                              true, // Makes sure the list doesn't expand infinitely
-                          physics:
-                              const NeverScrollableScrollPhysics(), // Disable scrolling in the ListView
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
                           itemCount: items.length,
                           itemBuilder: (context, index) {
                             final item = items[index]['fields'];
-                            final orderItemId =
-                                items[index]['id']; // Get the order item ID
+                            final orderItemId = items[index]['id'];
                             final imageUrl =
                                 'https://example.com/images/${item['ItemID']}.png'; // Example URL, replace with actual
 
@@ -158,7 +154,6 @@ class _OrderSummaryState extends State<OrderSummary> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    // Image from API
                                     Image.network(
                                       imageUrl,
                                       height: 50,
@@ -173,8 +168,6 @@ class _OrderSummaryState extends State<OrderSummary> {
                                       },
                                     ),
                                     const SizedBox(width: 5),
-
-                                    // Name
                                     Text(
                                       item['Item Name'] ?? 'No Name',
                                       style: const TextStyle(
@@ -184,8 +177,6 @@ class _OrderSummaryState extends State<OrderSummary> {
                                       ),
                                     ),
                                     const SizedBox(width: 40),
-
-                                    // Price
                                     Text(
                                       '${item['ItemPrice'] ?? '0'}',
                                       style: const TextStyle(
@@ -195,8 +186,6 @@ class _OrderSummaryState extends State<OrderSummary> {
                                       ),
                                     ),
                                     const Spacer(),
-
-                                    // Quantity Controls
                                     Row(
                                       children: [
                                         _buildQuantityButton(Icons.remove, () {
@@ -233,8 +222,6 @@ class _OrderSummaryState extends State<OrderSummary> {
                                         }),
                                       ],
                                     ),
-
-                                    // Total Amount
                                     const SizedBox(width: 16),
                                     Text(
                                       '${item['Quantity'] * item['ItemPrice']}',
@@ -244,13 +231,10 @@ class _OrderSummaryState extends State<OrderSummary> {
                                         color: Colors.blue,
                                       ),
                                     ),
-
-                                    // Delete Button
                                     const SizedBox(width: 16),
                                     IconButton(
                                       icon: const Icon(Icons.delete,
-                                          color: Colors.red,
-                                          size: 30), // Increased size to 30
+                                          color: Colors.red, size: 30),
                                       onPressed: () {
                                         deleteItem(orderItemId, index);
                                       },
@@ -265,8 +249,6 @@ class _OrderSummaryState extends State<OrderSummary> {
                     ),
                   ),
                 ),
-
-                // Fixed Quantity Button Section
                 Container(
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
@@ -279,7 +261,6 @@ class _OrderSummaryState extends State<OrderSummary> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // First Column: 2x2 Grid of Curved Amount Buttons
                       Column(
                         children: [
                           Row(
@@ -299,11 +280,7 @@ class _OrderSummaryState extends State<OrderSummary> {
                           ),
                         ],
                       ),
-
-                      // Second Column: Add Amount Section with TextField constrained
                       _buildAddAmountButton(),
-
-                      // Third Column: Cash and UPI Buttons
                       Column(
                         children: [
                           _buildPaymentButton('Cash', Icons.money),

@@ -17,7 +17,12 @@ class _EdititemState extends State<Edititem> {
   late TextEditingController _priceController;
   late TextEditingController _quantityController;
   late String _selectedCategory;
-  List<String> _categories = ['Snacks', 'Fast Food', 'Beverages', 'Others'];
+  final List<String> _categories = [
+    'Snacks',
+    'Fast Food',
+    'Beverages',
+    'Others'
+  ];
 
   @override
   void initState() {
@@ -63,7 +68,13 @@ class _EdititemState extends State<Edititem> {
     );
 
     if (response.statusCode == 200) {
-      Navigator.pop(context);
+      final updatedRecord = widget.record.copyWith(
+        itemName: _itemNameController.text,
+        price: int.parse(_priceController.text),
+        quantity: int.parse(_quantityController.text),
+        category: _selectedCategory,
+      );
+      Navigator.pop(context, updatedRecord);
     } else {
       // Handle error
       print('Failed to update item: ${response.body}');
@@ -75,26 +86,26 @@ class _EdititemState extends State<Edititem> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Edit Item',
           style: TextStyle(fontSize: 30),
         ),
-        backgroundColor: Color(0xFF195DAD),
+        backgroundColor: const Color(0xFF195DAD),
       ),
       body: Center(
         child: SingleChildScrollView(
           child: Container(
-            padding: EdgeInsets.all(16.0),
-            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+            padding: const EdgeInsets.all(16.0),
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
             decoration: BoxDecoration(
-              color: Color(0xFFD9EFFF),
+              color: const Color(0xFFD9EFFF),
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.5),
                   spreadRadius: 5,
                   blurRadius: 5,
-                  offset: Offset(0, 3),
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
@@ -102,56 +113,58 @@ class _EdititemState extends State<Edititem> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 _buildTextField(
                     _itemNameController, 'Name of Item', 'e.g. Kurkure'),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildTextField(_priceController, 'Price (Rs.)', 'e.g. 20',
                     isNumber: true),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildTextField(
                     _quantityController, 'Quantity in stock', 'e.g. 200',
                     isNumber: true),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildCategoryDropdown(),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildImageSection(),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: _saveChanges,
-                  child: Text(
+                  child: const Text(
                     'Update Item',
                     style: TextStyle(color: Colors.white, fontSize: 30),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF195DAD),
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    textStyle: TextStyle(fontSize: 20),
+                    backgroundColor: const Color(0xFF195DAD),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 10),
+                    textStyle: const TextStyle(fontSize: 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 OutlinedButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text(
+                  child: const Text(
                     'Go Back',
                     style: TextStyle(fontSize: 25),
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Color(0xFF195DAD),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    textStyle: TextStyle(fontSize: 18),
-                    side: BorderSide(color: Color(0xFF195DAD)),
+                    foregroundColor: const Color(0xFF195DAD),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    textStyle: const TextStyle(fontSize: 18),
+                    side: const BorderSide(color: Color(0xFF195DAD)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
               ],
             ),
           ),
@@ -168,10 +181,10 @@ class _EdititemState extends State<Edititem> {
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
-        labelStyle: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
-        border: UnderlineInputBorder(),
+        labelStyle: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
+        border: const UnderlineInputBorder(),
       ),
-      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+      style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,
     );
   }
@@ -179,7 +192,7 @@ class _EdititemState extends State<Edititem> {
   Widget _buildCategoryDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedCategory,
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         labelText: 'Category',
         labelStyle: TextStyle(
           fontSize: 35,
@@ -187,7 +200,7 @@ class _EdititemState extends State<Edititem> {
         ),
         border: UnderlineInputBorder(),
       ),
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 30,
         fontWeight: FontWeight.bold,
         color: Colors.black,
@@ -219,23 +232,24 @@ class _EdititemState extends State<Edititem> {
           height: 180,
           width: 180,
           decoration: BoxDecoration(
-            color: Color(0xFFA5CEFF),
+            color: const Color(0xFFA5CEFF),
             borderRadius: BorderRadius.circular(10),
           ),
           child: widget.record.pictureUrl.isEmpty
-              ? Center(
+              ? const Center(
                   child: Text(
-                  'Picture Not Found',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
-                ))
+                    'Picture Not Found',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                )
               : Image.network(
                   widget.record.pictureUrl,
                   fit: BoxFit.cover,
                 ),
         ),
-        SizedBox(height: 10),
-        Text(
+        const SizedBox(height: 10),
+        const Text(
           'Click on the picture',
           style: TextStyle(color: Colors.grey, fontSize: 16),
         ),

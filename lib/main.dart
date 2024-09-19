@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:karobar/SplashScreen.dart';
 import 'package:karobar/conexnav.dart';
+import 'package:karobar/nav_bar/cart_model.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CartModel(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

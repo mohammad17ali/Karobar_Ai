@@ -85,70 +85,63 @@ class _ShopFastFoodState extends State<ShopFastFood> {
     }
   }
 
-  Future<void> editItem({required Record record}) async {
-    TextEditingController nameController =
-        TextEditingController(text: record.itemName);
-    TextEditingController priceController =
-        TextEditingController(text: record.price.toString());
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Edit Item'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Item Name'),
-              ),
-              TextField(
-                controller: priceController,
-                decoration: const InputDecoration(labelText: 'Price'),
-                keyboardType: TextInputType.number,
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final String updatedName = nameController.text;
-                final int updatedPrice = int.parse(priceController.text);
-
-                await updateRecordDetails(
-                    record: record,
-                    updatedName: updatedName,
-                    updatedPrice: updatedPrice);
-
-                setState(() {
-                  record.itemName = updatedName;
-                  record.price = updatedPrice;
-                });
-
-                Navigator.of(context).pop();
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> updateRecordDetails({
+  Future<void> addItemToOrder({
     required Record record,
-    required String updatedName,
-    required int updatedPrice,
   }) async {
     final String url =
-        'https://api.airtable.com/v0/appgAln53ifPLiXNu/tblvBQeCreDaryIPs/${record.id}';
+        'https://api.airtable.com/v0/appgAln53ifPLiXNu/OrderItems';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization':
+              'Bearer patXmwDbTcQr2K1lJ.de9224db382239bd6b93f162a21d6b0db884233ee5f59ab1458e5851b6764451',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "records": [
+            {
+              "fields": {
+                "OrderItemID": record.id,
+                "OrderID": "Some Order ID", // Replace with actual OrderID
+                "ItemID": record.id,
+                "Item Name": record.itemName,
+                "Quantity": record.quantity,
+                "ItemPrice": record.price,
+                "Status": "Pending",
+              }
+            }
+          ]
+        }),
+      );
+
+      print('Add Item to Order Response status: ${response.statusCode}');
+      print('Add Item to Order Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+        String newOrderItemId = responseData['records'][0]['id'];
+        setState(() {
+          record.orderItemId = newOrderItemId;
+        });
+      } else {
+        throw Exception('Failed to add item to order');
+      }
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Error occurred while adding item to order.')),
+      );
+    }
+  }
+
+  Future<void> updateItemQuantity({
+    required Record record,
+  }) async {
+    final String url =
+        'https://api.airtable.com/v0/appgAln53ifPLiXNu/OrderItems';
 
     try {
       final response = await http.patch(
@@ -159,24 +152,28 @@ class _ShopFastFoodState extends State<ShopFastFood> {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          "fields": {
-            "Item Name": updatedName,
-            "Price": updatedPrice,
-          }
+          "records": [
+            {
+              "id": record.orderItemId,
+              "fields": {
+                "Quantity": record.quantity,
+              }
+            }
+          ]
         }),
       );
 
-      print('Update Item Response status: ${response.statusCode}');
-      print('Update Item Response body: ${response.body}');
+      print('Update Item Quantity Response status: ${response.statusCode}');
+      print('Update Item Quantity Response body: ${response.body}');
 
       if (response.statusCode != 200) {
-        throw Exception('Failed to update item details');
+        throw Exception('Failed to update item quantity');
       }
     } catch (e) {
       print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Error occurred while updating item details.')),
+            content: Text('Error occurred while updating quantity.')),
       );
     }
   }
@@ -273,16 +270,117 @@ class _ShopFastFoodState extends State<ShopFastFood> {
                     color: Color(0xFF195DAD),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () {
-                    editItem(record: record);
-                  },
+                SizedBox(
+                  width: 110, // Fixed width for both buttons
+                  height: 40, // Fixed height for both buttons
+                  child: record.quantity > 0
+                      ? _buildQuantitySelector(record)
+                      : ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              record.quantity = 1;
+                            });
+                            addItemToOrder(record: record);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF195DAD),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                          ),
+                          child: const Text(
+                            'ADD',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuantitySelector(Record record) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white, // White background
+        borderRadius: BorderRadius.circular(30.0), // Rounded corners
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5), // Shadow color
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3), // Position of shadow
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          InkWell(
+            onTap: () {
+              setState(() {
+                if (record.quantity > 0) {
+                  record.quantity--;
+                  if (record.orderItemId != null) {
+                    updateItemQuantity(record: record);
+                  }
+                }
+              });
+            },
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+              child: const Text(
+                '-',
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF195DAD),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              record.quantity.toString(),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Color(0xFF195DAD),
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () {
+              setState(() {
+                record.quantity++;
+                if (record.orderItemId != null) {
+                  updateItemQuantity(record: record);
+                }
+              });
+            },
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+              child: const Text(
+                '+',
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF195DAD),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

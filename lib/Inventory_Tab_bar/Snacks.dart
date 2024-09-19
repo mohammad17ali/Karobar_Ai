@@ -55,8 +55,7 @@ class _SnacksState extends State<Snacks> {
       // Handle error
       setState(() {
         records = [];
-        isFetched =
-            true; // Even if an error occurs, mark as fetched to avoid retries
+        isFetched = true; // Mark as fetched to avoid retries
       });
       print('Error: $e');
     } finally {
@@ -70,13 +69,13 @@ class _SnacksState extends State<Snacks> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Color(0xFFEEFFFF),
+        color: const Color(0xFFEEFFFF),
         child: isLoading && !isFetched
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : records == null || records!.isEmpty
-                ? Center(child: Text('No records found.'))
+                ? const Center(child: Text('No records found.'))
                 : ListView.builder(
-                    padding: EdgeInsets.all(30.0),
+                    padding: const EdgeInsets.all(30.0),
                     itemCount: records!.length,
                     itemBuilder: (context, index) {
                       final record = records![index];
@@ -87,7 +86,7 @@ class _SnacksState extends State<Snacks> {
                         quantity: record.quantity,
                         remaining: 350, // Replace with actual remaining value
                         popularity: 3, // Replace with actual popularity value
-                        record: record, // Pass the record to the card
+                        record: record,
                       );
                     },
                   ),
@@ -112,12 +111,12 @@ class _SnacksState extends State<Snacks> {
         elevation: 6,
         child: Container(
           width: screenWidth * 0.8,
-          padding: EdgeInsets.all(2),
+          padding: const EdgeInsets.all(2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Color(0xFF195DAD),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20),
@@ -136,7 +135,7 @@ class _SnacksState extends State<Snacks> {
                 ),
               ),
               Container(
-                color: Color(0xFFA5CEFF),
+                color: const Color(0xFFA5CEFF),
                 child: Row(
                   children: [
                     Expanded(
@@ -148,7 +147,7 @@ class _SnacksState extends State<Snacks> {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    SizedBox(width: 10), // Adjusted spacing
+                    const SizedBox(width: 10),
                     Expanded(
                       flex: 5,
                       child: Column(
@@ -164,7 +163,7 @@ class _SnacksState extends State<Snacks> {
                   ],
                 ),
               ),
-              Divider(),
+              const Divider(),
               Container(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -180,21 +179,32 @@ class _SnacksState extends State<Snacks> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () async {
+                        final updatedRecord = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => Edititem(record: record),
                           ),
                         );
+
+                        if (updatedRecord != null) {
+                          setState(() {
+                            // Update specific record after editing
+                            final index = records!
+                                .indexWhere((r) => r.id == updatedRecord.id);
+                            if (index != -1) {
+                              records![index] = updatedRecord;
+                            }
+                          });
+                        }
                       },
                       style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Color(0xFF195DAD)),
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            const Color(0xFF195DAD)),
                         foregroundColor:
                             MaterialStateProperty.all<Color>(Colors.white),
                       ),
-                      child: Text('Edit', style: TextStyle(fontSize: 25)),
+                      child: const Text('Edit', style: TextStyle(fontSize: 25)),
                     ),
                   ],
                 ),
@@ -208,19 +218,19 @@ class _SnacksState extends State<Snacks> {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: [
           Container(
             width: 100,
             child: Text(
               '$label: ',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
           ),
           Text(
             value,
-            style: TextStyle(fontSize: 20),
+            style: const TextStyle(fontSize: 20),
           ),
         ],
       ),

@@ -7,18 +7,20 @@ class Record {
   final String pictureUrl;
   final int price;
   final String itemName;
-  final String category; // Add category field
+  final String category;
   int quantity;
-  String? orderItemId; // To store the Order Item ID after it's added
+  String? orderItemId;
+  bool isInOrderSummary;
 
   Record({
     required this.id,
     required this.pictureUrl,
     required this.price,
     required this.itemName,
-    required this.category, // Initialize category
-    this.quantity = 0, // Default to 0
-    this.orderItemId, // Nullable because it might not exist yet
+    required this.category,
+    this.quantity = 0,
+    this.orderItemId,
+    this.isInOrderSummary = false,
   });
 
   factory Record.fromJson(Map<String, dynamic> json) {
@@ -28,8 +30,7 @@ class Record {
         pictureList.isNotEmpty ? pictureList[0]['url'] ?? '' : '';
     final price = fields['Price'] ?? 0;
     final itemName = fields['Item Name'] ?? 'Unknown Item';
-    final category = fields['Category'] ??
-        'Unknown'; // Assuming "Category" is the field name in your Airtable
+    final category = fields['Category'] ?? 'Unknown';
 
     final id = json['id'] ?? '';
 
@@ -38,7 +39,7 @@ class Record {
       pictureUrl: pictureUrl,
       price: price,
       itemName: itemName,
-      category: category, // Set category
+      category: category,
     );
   }
 }
@@ -60,7 +61,7 @@ class _ShopSnacksState extends State<ShopSnacks> {
   }
 
   Future<List<Record>> fetchRecords() async {
-    final response = await http.get(
+    final recordsResponse = await http.get(
       Uri.parse(
           'https://api.airtable.com/v0/appgAln53ifPLiXNu/tblvBQeCreDaryIPs'),
       headers: {
@@ -69,20 +70,52 @@ class _ShopSnacksState extends State<ShopSnacks> {
       },
     );
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> json = jsonDecode(response.body);
-      List<Record> allRecords = (json['records'] as List).map((data) {
+    final ordersResponse = await http.get(
+      Uri.parse('https://api.airtable.com/v0/appgAln53ifPLiXNu/OrderItems'),
+      headers: {
+        'Authorization':
+            'Bearer patXmwDbTcQr2K1lJ.de9224db382239bd6b93f162a21d6b0db884233ee5f59ab1458e5851b6764451',
+      },
+    );
+
+    if (recordsResponse.statusCode == 200 && ordersResponse.statusCode == 200) {
+      Map<String, dynamic> recordsJson = jsonDecode(recordsResponse.body);
+      Map<String, dynamic> ordersJson = jsonDecode(ordersResponse.body);
+
+      List<Record> allRecords = (recordsJson['records'] as List).map((data) {
         return Record.fromJson(data);
       }).toList();
 
-      // Filter the records to include only those in the "Snacks" category
+      List<dynamic> orderItems = ordersJson['records'];
+
+      // Create a map of item ID to quantity
+      Map<String, dynamic> orderSummaryMap = {};
+      for (var orderItem in orderItems) {
+        final fields = orderItem['fields'];
+        final itemId = fields['ItemID'];
+        final quantity = fields['Quantity'];
+        orderSummaryMap[itemId] = {
+          'quantity': quantity,
+          'orderItemId': orderItem['id'],
+        };
+      }
+
+      // Set quantity for items in the order summary
       List<Record> snackRecords = allRecords.where((record) {
-        return record.category == "Snacks";
+        if (record.category == "Snacks") {
+          if (orderSummaryMap.containsKey(record.id)) {
+            record.quantity = orderSummaryMap[record.id]['quantity'];
+            record.orderItemId = orderSummaryMap[record.id]['orderItemId'];
+            record.isInOrderSummary = true;
+          }
+          return true;
+        }
+        return false;
       }).toList();
 
       return snackRecords;
     } else {
-      throw Exception('Failed to load records');
+      throw Exception('Failed to load records or order items');
     }
   }
 
@@ -117,14 +150,12 @@ class _ShopSnacksState extends State<ShopSnacks> {
         }),
       );
 
-      print('Add Item to Order Response status: ${response.statusCode}');
-      print('Add Item to Order Response body: ${response.body}');
-
       if (response.statusCode == 200) {
         Map<String, dynamic> responseData = jsonDecode(response.body);
         String newOrderItemId = responseData['records'][0]['id'];
         setState(() {
           record.orderItemId = newOrderItemId;
+          record.isInOrderSummary = true;
         });
       } else {
         throw Exception('Failed to add item to order');
@@ -163,9 +194,6 @@ class _ShopSnacksState extends State<ShopSnacks> {
           ]
         }),
       );
-
-      print('Update Item Quantity Response status: ${response.statusCode}');
-      print('Update Item Quantity Response body: ${response.body}');
 
       if (response.statusCode != 200) {
         throw Exception('Failed to update item quantity');
@@ -272,9 +300,9 @@ class _ShopSnacksState extends State<ShopSnacks> {
                   ),
                 ),
                 SizedBox(
-                  width: 110, // Fixed width for both buttons
-                  height: 40, // Fixed height for both buttons
-                  child: record.quantity > 0
+                  width: 110,
+                  height: 40,
+                  child: record.isInOrderSummary
                       ? _buildQuantitySelector(record)
                       : ElevatedButton(
                           onPressed: () {

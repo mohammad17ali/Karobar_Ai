@@ -179,21 +179,32 @@ class _FastFoodState extends State<FastFood> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
+                    onPressed: () async {
+                      final updatedRecord = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => Edititem(record: record),
                         ),
                       );
+
+                      if (updatedRecord != null) {
+                        setState(() {
+                          // Update specific record after editing
+                          final index = records!
+                              .indexWhere((r) => r.id == updatedRecord.id);
+                          if (index != -1) {
+                            records![index] = updatedRecord;
+                          }
+                        });
+                      }
                     },
                     style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Color(0xFF195DAD)),
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          const Color(0xFF195DAD)),
                       foregroundColor:
                           MaterialStateProperty.all<Color>(Colors.white),
                     ),
-                    child: Text('Edit', style: TextStyle(fontSize: 25)),
+                    child: const Text('Edit', style: TextStyle(fontSize: 25)),
                   ),
                 ],
               ),
