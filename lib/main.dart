@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/splash': (context) => SplashScreen(), // SplashScreen as initial route
         '/nav': (context) => ConvexNavBar(),
+        '/home': (context) => HomePage(),
       },
     );
   }
