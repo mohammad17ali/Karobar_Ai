@@ -1,0 +1,12 @@
+// lib/screens/PaymentConfirmationPage.dart
+import 'package:flutter/material.dart';
+
+class PaymentConfirmationPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('PaymentConfirmationPage')),
+      body: Center(child: Text('Welcome to Karobar')),
+    );
+  }
+}
