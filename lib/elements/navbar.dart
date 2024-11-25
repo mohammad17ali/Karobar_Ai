@@ -17,17 +17,18 @@ class CustomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 80, // Height including the extruding part
+      height: 120, // Height including the extruding part
       child: Stack(
         children: [
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              height: 60,
-              margin: EdgeInsets.symmetric(horizontal: 16),
+              height: 80,
+              width: 800,
+              margin: EdgeInsets.symmetric(horizontal: 50),
               decoration: BoxDecoration(
                 color: Color(0xFF1A237E), // Dark blue color
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(40),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -39,7 +40,7 @@ class CustomNavBar extends StatelessWidget {
                     onTap: () => onIndexChanged(0),
                   ),
                   // Spacer for center button
-                  SizedBox(width: 80),
+                  SizedBox(width: 100),
                   _buildNavItem(
                     icon: Icons.dashboard_outlined,
                     label: 'Dashboard',
@@ -55,13 +56,11 @@ class CustomNavBar extends StatelessWidget {
             child: Align(
               alignment: Alignment.center,
               child: Container(
-                width: 64,
-                height: 64,
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
                     colors: [
                       Color(0xFFFF4081),
                       Color(0xFFFF1744),
@@ -100,21 +99,23 @@ class CustomNavBar extends StatelessWidget {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             icon,
-            color: isSelected ? Colors.white : Colors.white70,
-            size: 24,
+            color: isSelected ? Colors.white : Colors.white,
+            // Change color based on selection
+            size: 30,
           ),
-          SizedBox(height: 4),
+          SizedBox(width: 8), // Space between icon and text
           Text(
             label,
             style: TextStyle(
-              color: isSelected ? Colors.white : Colors.white70,
-              fontSize: 12,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              color: isSelected ? Colors.white : Colors.white,
+              // Change color based on selection
+              fontSize: 18,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),
         ],
