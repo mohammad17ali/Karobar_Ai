@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 class TopBar extends StatelessWidget implements PreferredSizeWidget {
   final double height;
 
-  TopBar({this.height = 60}); // Default height of the top bar
+  TopBar({this.height = 80}); // Default height of the top bar
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +26,8 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           // Search bar
           Container(
-            height: 40,
-            width: 200,
+            height: 50,
+            width: 250,
             padding: EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
               color: Color(0xFFB3DAFF), // Light blue color for the search bar
