@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Karobar - Revolutionizing Retail</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-react@0.263.1/dist/lucide-react.min.css">
+</head>
+<body class="font-sans">
+  <header class="bg-blue-500 text-white py-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <a href="#" class="text-2xl font-bold">Karobar</a>
+      <nav class="space-x-4">
+        <a href="#" class="hover:text-gray-200">Home</a>
+        <a href="#features" class="hover:text-gray-200">Features</a>
+        <a href="#testimonials" class="hover:text-gray-200">Testimonials</a>
+        <a href="#contact" class="hover:text-gray-200">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero bg-pink-400 py-20">
+      <div class="container mx-auto flex items-center justify-between">
+        <div class="w-1/2 animate__animated animate__fadeInLeft">
+          <h1 class="text-4xl font-bold mb-4">Revolutionizing Retail</h1>
+          <p class="text-lg mb-8">Karobar provides intelligent solutions to help retail businesses thrive.</p>
+          <button class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Learn More</button>
+        </div>
+        <div class="w-1/2 animate__animated animate__fadeInRight">
+          <img src="/api/placeholder/600/400" alt="Karobar App" class="max-w-full">
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="py-16 bg-gray-100">
+      <div class="container mx-auto">
+        <h2 class="text-3xl font-bold mb-8">Key Features</h2>
+        <div class="grid grid-cols-3 gap-8">
+          <div class="bg-white rounded-md shadow-md p-6 animate__animated animate__fadeInUp">
+            <div class="mb-4">
+              <Camera color="#4299e1" size={48} />
+            </div>
+            <h3 class="text-xl font-bold mb-2">Inventory Management</h3>
+            <p>Keep track of your stock levels and optimize your supply chain.</p>
+          </div>
+          <div class="bg-white rounded-md shadow-md p-6 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+            <div class="mb-4">
+              <Truck color="#4299e1" size={48} />
+            </div>
+            <h3 class="text-xl font-bold mb-2">Delivery Optimization</h3>
+            <p>Streamline your delivery process and provide a better customer experience.</p>
+          </div>
+          <div class="bg-white rounded-md shadow-md p-6 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+            <div class="mb-4">
+              <ChartBar color="#4299e1" size={48} />
+            </div>
+            <h3 class="text-xl font-bold mb-2">Advanced Analytics</h3>
+            <p>Gain insights to make data-driven decisions for your business.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="testimonials" class="py-16">
+      <div class="container mx-auto">
+        <h2 class="text-3xl font-bold mb-8">What Our Customers Say</h2>
+        <div class="grid grid-cols-2 gap-8">
+          <div class="bg-white rounded-md shadow-md p-6 animate__animated animate__fadeInLeft">
+            <blockquote>
+              <p class="mb-4">"Karobar has been a game-changer for our retail business. The intelligent solutions have helped us streamline our operations and improve our bottom line."</p>
+              <cite class="font-bold">- John Doe, Retail Store Owner</cite>
+            </blockquote>
+          </div>
+          <div class="bg-white rounded-md shadow-md p-6 animate__animated animate__fadeInRight">
+            <blockquote>
+              <p class="mb-4">"The Karobar platform has made it so much easier to manage our inventory and logistics. We've seen a significant increase in customer satisfaction and loyalty."</p>
+              <cite class="font-bold">- Jane Smith, Grocery Store Manager</cite>
+            </blockquote>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="bg-blue-500 text-white py-16">
+      <div class="container mx-auto">
+        <h2 class="text-3xl font-bold mb-8">Get in Touch</h2>
+        <form class="max-w-md mx-auto animate__animated animate__fadeInUp">
+          <div class="mb-4">
+            <label for="name" class="block font-bold mb-2">Name</label>
+            <input type="text" id="name" name="name" class="w-full px-4 py-2 rounded-md" required>
+          </div>
+          <div class="mb-4">
+            <label for="email" class="block font-bold mb-2">Email</label>
+            <input type="email" id="email" name="email" class="w-full px-4 py-2 rounded-md" required>
+          </div>
+          <div class="mb-4">
+            <label for="message" class="block font-bold mb-2">Message</label>
+            <textarea id="message" name="message" rows="4" class="w-full px-4 py-2 rounded-md" required></textarea>
+          </div>
+          <button type="submit" class="bg-white text-blue-500 py-2 px-4 rounded-md hover:bg-gray-200">Submit</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-gray-800 text-white py-4">
+    <div class="container mx-auto text-center">
+      <p>&copy; 2023 Karobar. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Add any necessary JavaScript functionality here
+  </script>
+</body>
+</html>
