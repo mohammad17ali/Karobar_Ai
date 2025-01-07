@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  // Force the app to run in landscape orientation
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
@@ -28,8 +27,15 @@ class RestaurantHomePage extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final Map<int, int> _cart = {}; // Map to track item quantities by index
 
   @override
   Widget build(BuildContext context) {
@@ -99,65 +105,101 @@ class HomePage extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(height: 10),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.deepPurple[700],
-                    borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: 20),
+                const Text(
+                  "Order Details",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: ListView(
+                    children: _cart.entries.map((entry) {
+                      final index = entry.key;
+                      final quantity = entry.value;
+                      final price = 100; // Dummy price
+                      final subtotal = quantity * price;
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Dish ${index + 1}",
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            Text(
+                              "$quantity x $price Rs.",
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                            Text(
+                              "$subtotal Rs.",
+                              style: const TextStyle(
+                                color: Colors.greenAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                
+                const Divider(color: Colors.white70),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        "Order No. 35",
+                        "Total:",
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
                           fontSize: 16,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Indian Thali: 1 x 280\nVeg BBQ: 2 x 200\nMalabar Paratha: 3 x 70",
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Total: 550.00 Rs.",
-                        style: TextStyle(
+                      Text(
+                        "${_cart.entries.fold(0, (sum, entry) => sum + entry.value * 100)} Rs.",
+                        style: const TextStyle(
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.greenAccent,
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                            ),
-                            child: const Text(
-                              "Confirm",
-                              style: TextStyle(color: Colors.deepPurple),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.greenAccent,
-                            ),
-                            child: const Text(
-                              "Pay",
-                              style: TextStyle(color: Colors.deepPurple),
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                      ),
+                      child: const Text(
+                        "Confirm",
+                        style: TextStyle(color: Colors.deepPurple),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.greenAccent,
+                      ),
+                      child: const Text(
+                        "Pay",
+                        style: TextStyle(color: Colors.deepPurple),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -186,7 +228,7 @@ class HomePage extends StatelessWidget {
                 // Category bar
                 Container(
                   height: 50,
-                  color: Colors.deepPurple[50],
+                  color: Colors.deepPurple[600],
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: [
@@ -213,52 +255,105 @@ class HomePage extends StatelessWidget {
                       ),
                       itemCount: 12, // Dummy menu items
                       itemBuilder: (context, index) {
-                        return Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 4,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        final isAdded = _cart.containsKey(index);
+                        final quantity = _cart[index] ?? 0;
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _cart[index] = quantity + 1;
+                            });
+                          },
+                          child: Stack(
                             children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(16),
-                                    ),
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                          'assets/food${index + 1}.jpg'), // Dummy images
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
+                              Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
-                              ),
-                              
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                elevation: 4,
+                                color: isAdded ? Colors.red[100] : Colors.white,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "Dish ${index + 1}",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                                    Expanded(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: const BorderRadius.vertical(
+                                            top: Radius.circular(16),
+                                          ),
+                                          image: DecorationImage(
+                                            image: AssetImage(
+                                                'assets/food${index + 1}.jpg'), // Dummy images
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
-                                    const Text(
-                                      "100 Rs.",
-                                      style: TextStyle(
-                                        color: Colors.green,
-                                        fontWeight: FontWeight.bold,
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Dish ${index + 1}",
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          const Text(
+                                            "100 Rs.",
+                                            style: TextStyle(
+                                              color: Colors.green,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
+                              if (isAdded) ...[
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: CircleAvatar(
+                                    radius: 16,
+                                    backgroundColor: Colors.green,
+                                    child: Text(
+                                      quantity.toString(),
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
+                                    
+                                  ),
+                                ),
+                                Positioned(
+                                  right: 10,
+                                  bottom: 10,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        if (quantity > 1) {
+                                          _cart[index] = quantity - 1;
+                                        } else {
+                                          _cart.remove(index);
+                                        }
+                                      });
+                                    },
+                                    child: CircleAvatar(
+                                      radius: 24,
+                                      backgroundColor: Colors.red,
+                                      child: Icon(
+                                        quantity > 1 ? Icons.remove : Icons.delete,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         );
@@ -280,13 +375,14 @@ class HomePage extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () {},
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: Colors.deepPurple[50],
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
         ),
-        child: Text(title),
+        child: Text(title,
+                   style: TextStyle(color: Colors.deepPurple)),
       ),
     );
   }
