@@ -139,7 +139,7 @@ class HomePage extends StatelessWidget {
                               backgroundColor: Colors.white,
                             ),
                             child: const Text(
-                              "Confirm Order",
+                              "Confirm",
                               style: TextStyle(color: Colors.deepPurple),
                             ),
                           ),
@@ -150,7 +150,7 @@ class HomePage extends StatelessWidget {
                               backgroundColor: Colors.greenAccent,
                             ),
                             child: const Text(
-                              "Confirm and Pay",
+                              "Pay",
                               style: TextStyle(color: Colors.deepPurple),
                             ),
                           ),
@@ -169,15 +169,15 @@ class HomePage extends StatelessWidget {
               children: [
                 // Top bar
                 Container(
-                  height: 60,
+                  height: 40,
                   color: Colors.deepPurple[700],
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   alignment: Alignment.centerLeft,
                   child: const Text(
                     "Menu Dashboard",
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -185,7 +185,7 @@ class HomePage extends StatelessWidget {
 
                 // Category bar
                 Container(
-                  height: 60,
+                  height: 50,
                   color: Colors.deepPurple[50],
                   child: ListView(
                     scrollDirection: Axis.horizontal,
@@ -235,6 +235,7 @@ class HomePage extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                              
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(
@@ -275,14 +276,14 @@ class HomePage extends StatelessWidget {
 
   Widget _buildCategoryButton(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.all(4),
       child: ElevatedButton(
         onPressed: () {},
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepPurple,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(30),
           ),
         ),
         child: Text(title),
