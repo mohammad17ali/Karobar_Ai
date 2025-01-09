@@ -285,6 +285,7 @@ class _HomePageState extends State<HomePage> {
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 elevation: 4,
+                                color: isAdded ? Colors.red[100] : Colors.white,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
