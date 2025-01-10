@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dummylist.dart';
+import 'dummyorders.dart';
 
 class RestaurantHomePage extends StatelessWidget {
   const RestaurantHomePage({super.key});
@@ -25,7 +26,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   final Map<int, int> _cart = {};
   final List<Map<String, dynamic>> _cartList = [];
   String _selectedCategory = 'All';
@@ -65,43 +65,92 @@ class _HomePageState extends State<HomePage> {
                     color: Colors.white70,
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Text(
-                  "Active Orders",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
                 const SizedBox(height: 10),
-                Expanded(
-                  child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 2,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                    ),
-                    itemCount: 8, // Dummy active orders
-                    itemBuilder: (context, index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.deepPurple[600],
-                          borderRadius: BorderRadius.circular(8),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.deepPurple[600],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                   // Background color for the section
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Active Orders",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
-                        child: Center(
-                          child: Text(
-                            "Order No.\n${index + 23}",
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      ),
+                      const SizedBox(height: 10),
+                      AspectRatio(
+                        aspectRatio:
+                            3 / 2, 
+                        child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 3/2, // Adjusted for a better fit
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
                           ),
+                          itemCount: ordersList
+                              .where((order) => order['Status'] == 'Active')
+                              .length, // Count active orders
+                          itemBuilder: (context, index) {
+                            final activeOrders = ordersList
+                                .where((order) => order['Status'] == 'Active')
+                                .toList();
+
+                            final order = activeOrders[index];
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        const TextSpan(
+                                          text: "Order No.\n",
+                                          style:  TextStyle(
+                                            color: Colors.deepPurple,
+                                            fontSize: 10, // Smaller font size
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: "${order['OrderNum']}\n",
+                                          style: const TextStyle(
+                                            color: Colors.deepPurple,
+                                            fontSize: 16, // Larger font size
+                                            fontWeight: FontWeight.w900,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: "${order['Amount']} Rs.",
+                                          style: const TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -240,7 +289,6 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-                 
 
                 // Body: Menu items
                 Expanded(
@@ -271,10 +319,8 @@ class _HomePageState extends State<HomePage> {
                                   'quantity': 1,
                                 });
                               } else {
-                                _cart[index] = quantity + 1;
-                                _cartList.firstWhere((cartItem) =>
-                                    cartItem['name'] ==
-                                    item['name'])['quantity']++;
+                                _cart[index] = (_cart[index]! + 1);
+                                _cartList.firstWhere((cartItem) => cartItem['name'] == item['name'])['quantity']++;
                               }
                             });
                           },
@@ -412,11 +458,11 @@ class _HomePageState extends State<HomePage> {
         child: Text(
           title,
           style: TextStyle(
-            color: _selectedCategory == title ? Colors.white : Colors.deepPurple,
+            color:
+                _selectedCategory == title ? Colors.white : Colors.deepPurple,
           ),
         ),
       ),
     );
   }
-
 }
