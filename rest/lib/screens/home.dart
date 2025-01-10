@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'dummylist.dart';
 import 'dummyorders.dart';
 
@@ -8,10 +9,11 @@ class RestaurantHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Restaurant Dashboard',
+      title: 'karobar',
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         useMaterial3: true,
+        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       ),
       home: const HomePage(),
     );
@@ -39,32 +41,27 @@ class _HomePageState extends State<HomePage> {
             .toList();
 
     return Scaffold(
+      appBar: AppBar( 
+        title: const Text(
+          "The Zaika Restaurant",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.deepPurple[800],
+      ),
       body: Row(
         children: [
           // Sidebar
           Container(
-            width: 250,
+            width: 300,
             color: Colors.deepPurple[800],
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "The Zaika Restaurant",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  "Ghansoli, Navi Mumbai\n2nd November 2024\nFriday",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white70,
-                  ),
-                ),
+              children: [                  
                 const SizedBox(height: 10),
                 Container(
                   padding: const EdgeInsets.all(8),
@@ -91,8 +88,8 @@ class _HomePageState extends State<HomePage> {
                         child: GridView.builder(
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 3/2, // Adjusted for a better fit
+                            crossAxisCount: 3,
+                            childAspectRatio: 5/4, // Adjusted for a better fit
                             crossAxisSpacing: 8,
                             mainAxisSpacing: 8,
                           ),
@@ -100,10 +97,12 @@ class _HomePageState extends State<HomePage> {
                               .where((order) => order['Status'] == 'Active')
                               .length, // Count active orders
                           itemBuilder: (context, index) {
+                            // Filter the active orders
                             final activeOrders = ordersList
                                 .where((order) => order['Status'] == 'Active')
                                 .toList();
 
+                            // Extract order details
                             final order = activeOrders[index];
                             return Container(
                               decoration: BoxDecoration(
@@ -154,13 +153,34 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  "Order Details",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Order Details",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        "${ordersList.isNotEmpty ? ordersList.last['OrderNum'] + 1 : 1}",
+                        style: const TextStyle(
+                          color: Colors.deepPurple,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 Expanded(
@@ -253,22 +273,6 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: Column(
               children: [
-                // Top bar
-                Container(
-                  height: 40,
-                  color: Colors.deepPurple[700],
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  alignment: Alignment.centerLeft,
-                  child: const Text(
-                    "Menu Dashboard",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-
                 // Category bar
                 Container(
                   height: 50,
