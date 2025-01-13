@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dummylist.dart';
 import 'dummyorders.dart';
+import '../components/sidebar.dart';
 
 class RestaurantHomePage extends StatelessWidget {
   const RestaurantHomePage({super.key});
@@ -28,9 +29,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final Map<int, int> _cart = {};
-  final List<Map<String, dynamic>> _cartList = [];
-  String _selectedCategory = 'All';
+  final Map<String, int> _cart = {}; // Tracks itemID and quantities in the cart
+  final List<Map<String, dynamic>> _cartList = []; // Stores detailed cart items
+  String _selectedCategory = 'All'; // Tracks the selected category for filtering
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
             .toList();
 
     return Scaffold(
-      appBar: AppBar( 
+      appBar: AppBar(
         title: const Text(
           "The Zaika Restaurant",
           style: TextStyle(
@@ -51,224 +52,21 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         backgroundColor: Colors.deepPurple[800],
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0), 
+            child: Image.asset(
+              'assets/logoR.png', 
+              height: 40,       
+              fit: BoxFit.contain, 
+            ),
+          ),
+        ],
       ),
       body: Row(
         children: [
           // Sidebar
-          Container(
-            width: 300,
-            color: Colors.deepPurple[800],
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [                  
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.deepPurple[600],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                   // Background color for the section
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Active Orders",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      AspectRatio(
-                        aspectRatio:
-                            3 / 2, 
-                        child: GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            childAspectRatio: 5/4, // Adjusted for a better fit
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
-                          itemCount: ordersList
-                              .where((order) => order['Status'] == 'Active')
-                              .length, // Count active orders
-                          itemBuilder: (context, index) {
-                            // Filter the active orders
-                            final activeOrders = ordersList
-                                .where((order) => order['Status'] == 'Active')
-                                .toList();
-
-                            // Extract order details
-                            final order = activeOrders[index];
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text.rich(
-                                    TextSpan(
-                                      children: [
-                                        const TextSpan(
-                                          text: "Order No.\n",
-                                          style:  TextStyle(
-                                            color: Colors.deepPurple,
-                                            fontSize: 10, // Smaller font size
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: "${order['OrderNum']}\n",
-                                          style: const TextStyle(
-                                            color: Colors.deepPurple,
-                                            fontSize: 16, // Larger font size
-                                            fontWeight: FontWeight.w900,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: "${order['Amount']} Rs.",
-                                          style: const TextStyle(
-                                            color: Colors.red,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Order Details",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        "${ordersList.isNotEmpty ? ordersList.last['OrderNum'] + 1 : 1}",
-                        style: const TextStyle(
-                          color: Colors.deepPurple,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _cartList.length,
-                    itemBuilder: (context, index) {
-                      final item = _cartList[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              item['name'],
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            Text(
-                              "${item['quantity']} x ${item['price']} Rs.",
-                              style: const TextStyle(color: Colors.white70),
-                            ),
-                            Text(
-                              "${item['quantity'] * item['price']} Rs.",
-                              style: const TextStyle(
-                                color: Colors.greenAccent,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const Divider(color: Colors.white70),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Total:",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Text(
-                        "${_cartList.fold(0, (int sum, item) => sum + (item['quantity'] as int) * (item['price'] as int))} Rs.",
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.greenAccent,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                      ),
-                      child: const Text(
-                        "Confirm",
-                        style: TextStyle(color: Colors.deepPurple),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.greenAccent,
-                      ),
-                      child: const Text(
-                        "Pay",
-                        style: TextStyle(color: Colors.deepPurple),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
+          Sidebar(ordersList: ordersList, cartList: _cartList),
           // Main content
           Expanded(
             child: Column(
@@ -294,7 +92,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
-                // Body: Menu items
+                // Menu items
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -309,125 +107,31 @@ class _HomePageState extends State<HomePage> {
                       itemCount: filteredItems.length,
                       itemBuilder: (context, index) {
                         final item = filteredItems[index];
-                        final isAdded = _cart.containsKey(index);
-                        final quantity = _cart[index] ?? 0;
+                        final itemID = item['ItemID'];
+                        final isAdded = _cart.containsKey(itemID); // Check cart state
+                        final quantity = _cart[itemID] ?? 0;
 
                         return GestureDetector(
                           onTap: () {
                             setState(() {
-                              if (!_cart.containsKey(index)) {
-                                _cart[index] = 1;
+                              if (!_cart.containsKey(itemID)) {
+                                // If item is not in the cart, add it
+                                _cart[itemID] = 1;
                                 _cartList.add({
+                                  'itemID': itemID,
                                   'name': item['name'],
                                   'price': item['price'],
                                   'quantity': 1,
                                 });
                               } else {
-                                _cart[index] = (_cart[index]! + 1);
-                                _cartList.firstWhere((cartItem) => cartItem['name'] == item['name'])['quantity']++;
+                                // If item is in the cart, increment quantity
+                                _cart[itemID] = (_cart[itemID]! + 1);
+                                _cartList.firstWhere((cartItem) =>
+                                    cartItem['itemID'] == itemID)['quantity']++;
                               }
                             });
                           },
-                          child: Stack(
-                            children: [
-                              Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                elevation: 4,
-                                color: isAdded ? Colors.red[100] : Colors.white,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              const BorderRadius.vertical(
-                                            top: Radius.circular(16),
-                                          ),
-                                          image: DecorationImage(
-                                            image: AssetImage(item['image']),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item['name'],
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            "${item['price']} Rs.",
-                                            style: const TextStyle(
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              if (isAdded) ...[
-                                Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  child: CircleAvatar(
-                                    radius: 16,
-                                    backgroundColor: Colors.green,
-                                    child: Text(
-                                      quantity.toString(),
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  right: 10,
-                                  bottom: 10,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        if (quantity > 1) {
-                                          _cart[index] = quantity - 1;
-                                          _cartList.firstWhere((cartItem) =>
-                                              cartItem['name'] ==
-                                              item['name'])['quantity']--;
-                                        } else {
-                                          _cart.remove(index);
-                                          _cartList.removeWhere((cartItem) =>
-                                              cartItem['name'] == item['name']);
-                                        }
-                                      });
-                                    },
-                                    child: CircleAvatar(
-                                      radius: 24,
-                                      backgroundColor: Colors.red,
-                                      child: Icon(
-                                        quantity > 1
-                                            ? Icons.remove
-                                            : Icons.delete,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
+                          child: buildCard(item, isAdded, quantity),
                         );
                       },
                     ),
@@ -441,6 +145,39 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Builds the sidebar for orders and cart details
+  Widget buildSidebar() {
+    return Container(
+      width: 300,
+      color: Colors.deepPurple[800],
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Add components for sidebar here (order details, total price, etc.)
+        ],
+      ),
+    );
+  }
+
+  // Builds the category bar for filtering items
+  Widget buildCategoryBar() {
+    return Container(
+      height: 50,
+      color: Colors.deepPurple[600],
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          _buildCategoryButton("All"),
+          ...["Starters", "Main Course", "Chinese", "Indian", "Continental"]
+              .map((category) => _buildCategoryButton(category))
+              .toList(),
+        ],
+      ),
+    );
+  }
+
+  // Builds a category button
   Widget _buildCategoryButton(String title) {
     return Padding(
       padding: const EdgeInsets.all(4),
@@ -467,6 +204,106 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+    );
+  }
+
+  // Builds a menu item card with two states
+  Widget buildCard(Map<String, dynamic> item, bool isAdded, int quantity) {
+    return Stack(
+      children: [
+        Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 4,
+          color: isAdded ? Colors.red[100] : Colors.white, // Change based on state
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(16),
+                    ),
+                    image: DecorationImage(
+                      image: AssetImage(item['image']),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['name'],
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "${item['price']} Rs.",
+                      style: const TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (isAdded) ...[
+          // Quantity circle
+          Positioned(
+            right: 0,
+            top: 0,
+            child: CircleAvatar(
+              radius: 16,
+              backgroundColor: Colors.green,
+              child: Text(
+                quantity.toString(),
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+          // Subtract/delete button
+          Positioned(
+            right: 10,
+            bottom: 10,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (quantity > 1) {
+                    _cart[item['ItemID']] = quantity - 1;
+                    _cartList.firstWhere((cartItem) =>
+                        cartItem['itemID'] == item['ItemID'])['quantity']--;
+                  } else {
+                    _cart.remove(item['ItemID']);
+                    _cartList.removeWhere(
+                        (cartItem) => cartItem['itemID'] == item['ItemID']);
+                  }
+                });
+              },
+              child: CircleAvatar(
+                radius: 24,
+                backgroundColor: Colors.red,
+                child: Icon(
+                  quantity > 1 ? Icons.remove : Icons.delete,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
