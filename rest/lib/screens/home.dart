@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dummylist.dart';
-import 'dummyorders.dart';
+import '../services/fetchItems.dart';
+import '../services/fetchOrders.dart';
 import '../components/sidebar.dart';
+import '../services/dummyorders.dart';
+import '../services/dummylist.dart';
+
 
 class RestaurantHomePage extends StatelessWidget {
   const RestaurantHomePage({super.key});
@@ -29,17 +32,41 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final Map<String, int> _cart = {}; // Tracks itemID and quantities in the cart
-  final List<Map<String, dynamic>> _cartList = []; // Stores detailed cart items
-  String _selectedCategory = 'All'; // Tracks the selected category for filtering
+  final Map<String, int> _cart = {};
+  final List<Map<String, dynamic>> _cartList = [];
+  String _selectedCategory = 'All';
+  List<Map<String, dynamic>> _foodItems = [];
+  List<Map<String, dynamic>> ordersList = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchFoodItems();
+  }
+
+  Future<void> _fetchFoodItems() async {
+    try {
+      final fetchedItems = await FetchItems.fetchFoodItems();
+      setState(() {
+        _foodItems = fetchedItems;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching food items: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final filteredItems = _selectedCategory == 'All'
-        ? foodItems
-        : foodItems
-            .where((item) => item['category'].contains(_selectedCategory))
-            .toList();
+        ? _foodItems
+        : _foodItems
+        .where((item) => item['category'].contains(_selectedCategory))
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -54,24 +81,25 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.deepPurple[800],
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 20.0), 
+            padding: const EdgeInsets.only(right: 20.0),
             child: Image.asset(
-              'assets/logoR.png', 
-              height: 40,       
-              fit: BoxFit.contain, 
+              'lib/assets/logoR.png',
+              height: 40,
+              fit: BoxFit.contain,
             ),
           ),
         ],
       ),
-      body: Row(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Row(
         children: [
           // Sidebar
-          Sidebar(ordersList: ordersList, cartList: _cartList),
-          // Main content
+          Sidebar(ordersList: [], cartList: _cartList),
+
           Expanded(
             child: Column(
               children: [
-                // Category bar
                 Container(
                   height: 50,
                   color: Colors.deepPurple[600],
@@ -79,26 +107,18 @@ class _HomePageState extends State<HomePage> {
                     scrollDirection: Axis.horizontal,
                     children: [
                       _buildCategoryButton("All"),
-                      ...[
-                        "Starters",
-                        "Main Course",
-                        "Chinese",
-                        "Indian",
-                        "Continental"
-                      ].map((category) {
+                      ...["Starters", "Main Course", "Chinese", "Indian", "Continental"].map((category) {
                         return _buildCategoryButton(category);
                       }).toList(),
                     ],
                   ),
                 ),
 
-                // Menu items
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 4,
                         childAspectRatio: 0.85,
                         crossAxisSpacing: 16,
@@ -108,14 +128,13 @@ class _HomePageState extends State<HomePage> {
                       itemBuilder: (context, index) {
                         final item = filteredItems[index];
                         final itemID = item['ItemID'];
-                        final isAdded = _cart.containsKey(itemID); // Check cart state
+                        final isAdded = _cart.containsKey(itemID);
                         final quantity = _cart[itemID] ?? 0;
 
                         return GestureDetector(
                           onTap: () {
                             setState(() {
                               if (!_cart.containsKey(itemID)) {
-                                // If item is not in the cart, add it
                                 _cart[itemID] = 1;
                                 _cartList.add({
                                   'itemID': itemID,
@@ -124,10 +143,8 @@ class _HomePageState extends State<HomePage> {
                                   'quantity': 1,
                                 });
                               } else {
-                                // If item is in the cart, increment quantity
                                 _cart[itemID] = (_cart[itemID]! + 1);
-                                _cartList.firstWhere((cartItem) =>
-                                    cartItem['itemID'] == itemID)['quantity']++;
+                                _cartList.firstWhere((cartItem) => cartItem['itemID'] == itemID)['quantity']++;
                               }
                             });
                           },
@@ -145,39 +162,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Builds the sidebar for orders and cart details
-  Widget buildSidebar() {
-    return Container(
-      width: 300,
-      color: Colors.deepPurple[800],
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Add components for sidebar here (order details, total price, etc.)
-        ],
-      ),
-    );
-  }
-
-  // Builds the category bar for filtering items
-  Widget buildCategoryBar() {
-    return Container(
-      height: 50,
-      color: Colors.deepPurple[600],
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          _buildCategoryButton("All"),
-          ...["Starters", "Main Course", "Chinese", "Indian", "Continental"]
-              .map((category) => _buildCategoryButton(category))
-              .toList(),
-        ],
-      ),
-    );
-  }
-
-  // Builds a category button
   Widget _buildCategoryButton(String title) {
     return Padding(
       padding: const EdgeInsets.all(4),
@@ -188,9 +172,7 @@ class _HomePageState extends State<HomePage> {
           });
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: _selectedCategory == title
-              ? Colors.deepPurple
-              : Colors.deepPurple[50],
+          backgroundColor: _selectedCategory == title ? Colors.deepPurple : Colors.deepPurple[50],
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
@@ -199,15 +181,13 @@ class _HomePageState extends State<HomePage> {
         child: Text(
           title,
           style: TextStyle(
-            color:
-                _selectedCategory == title ? Colors.white : Colors.deepPurple,
+            color: _selectedCategory == title ? Colors.white : Colors.deepPurple,
           ),
         ),
       ),
     );
   }
 
-  // Builds a menu item card with two states
   Widget buildCard(Map<String, dynamic> item, bool isAdded, int quantity) {
     return Stack(
       children: [
@@ -216,18 +196,16 @@ class _HomePageState extends State<HomePage> {
             borderRadius: BorderRadius.circular(16),
           ),
           elevation: 4,
-          color: isAdded ? Colors.red[100] : Colors.white, // Change based on state
+          color: isAdded ? Colors.red[100] : Colors.white,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16),
-                    ),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                     image: DecorationImage(
-                      image: AssetImage(item['image']),
+                      image: NetworkImage(item['image']),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -260,7 +238,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         if (isAdded) ...[
-          // Quantity circle
           Positioned(
             right: 0,
             top: 0,
@@ -273,7 +250,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          // Subtract/delete button
           Positioned(
             right: 10,
             bottom: 10,
@@ -282,12 +258,10 @@ class _HomePageState extends State<HomePage> {
                 setState(() {
                   if (quantity > 1) {
                     _cart[item['ItemID']] = quantity - 1;
-                    _cartList.firstWhere((cartItem) =>
-                        cartItem['itemID'] == item['ItemID'])['quantity']--;
+                    _cartList.firstWhere((cartItem) => cartItem['itemID'] == item['ItemID'])['quantity']--;
                   } else {
                     _cart.remove(item['ItemID']);
-                    _cartList.removeWhere(
-                        (cartItem) => cartItem['itemID'] == item['ItemID']);
+                    _cartList.removeWhere((cartItem) => cartItem['itemID'] == item['ItemID']);
                   }
                 });
               },
