@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 class FetchItems {
   static const String apiUrl =
       "https://api.airtable.com/v0/appWaAdFLtWA1IAZM/Products?maxRecords=3&view=Grid%20view";
-  static const String apiKey = "YOUR_SECRET_API_TOKEN";
+  static const String apiKey = "API_KEY";
 
   static Future<List<Map<String, dynamic>>> fetchFoodItems() async {
     List<Map<String, dynamic>> foodItems = [];
