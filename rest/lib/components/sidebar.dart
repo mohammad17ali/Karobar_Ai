@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import '../functions.dart'; 
-import '../dummyorders.dart';
-import '../dummylist.dart';
+import '../functions.dart';
+import '../services/dummyorders.dart';
+import '../services/dummylist.dart';
+import '../services/fetchOrders.dart';
+
+import '../services/fetchItems.dart';
+
 
 
 class Sidebar extends StatefulWidget {
   final List<Map<String, dynamic>> ordersList;
   final List<Map<String, dynamic>> cartList;
+
 
   Sidebar({required this.ordersList, required List<Map<String, dynamic>> cartList})
       : cartList = cartList;
@@ -16,14 +21,30 @@ class Sidebar extends StatefulWidget {
 }
 
 class _SidebarState extends State<Sidebar> {
-  late List<Map<String, dynamic>> ordersList;
+  List<Map<String, dynamic>> ordersList = [];
   late List<Map<String, dynamic>> _cartList;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    ordersList = widget.ordersList;
+    _fetchOrders();
     _cartList = widget.cartList;
+  }
+
+  Future<void> _fetchOrders() async {
+    try {
+      final fetchedOrders = await FetchOrders.fetchOrders();
+      setState(() {
+        ordersList = fetchedOrders;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching Orders: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -83,7 +104,7 @@ class _SidebarState extends State<Sidebar> {
                                     text: "Order No.\n",
                                     style: TextStyle(
                                       color: Colors.deepPurple,
-                                      fontSize: 10,
+                                      fontSize: 8,
                                       fontWeight: FontWeight.normal,
                                     ),
                                   ),
@@ -91,15 +112,15 @@ class _SidebarState extends State<Sidebar> {
                                     text: "${order['OrderNum']}\n",
                                     style: const TextStyle(
                                       color: Colors.deepPurple,
-                                      fontSize: 16,
+                                      fontSize: 12,
                                       fontWeight: FontWeight.w900,
                                     ),
                                   ),
                                   TextSpan(
                                     text: "${order['Amount']} Rs.",
                                     style: const TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 12,
+                                      color: Colors.pinkAccent,
+                                      fontSize: 10,
                                       fontWeight: FontWeight.normal,
                                     ),
                                   ),
@@ -193,7 +214,8 @@ class _SidebarState extends State<Sidebar> {
                   ),
                 ),
                 Text(
-                  "${_cartList.fold(0, (int sum, item) => sum + (item['quantity'] * item['price']))} Rs.",
+                  "${_cartList.fold<int>(0, (sum, item) => sum + (item['quantity'] * item['price'] as int))} Rs.",
+
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -207,9 +229,7 @@ class _SidebarState extends State<Sidebar> {
           Row(
             children: [
               ElevatedButton(
-                onPressed: () {
-                  confirmOrder(ordersList, _cartList, setState);
-                },
+                onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                 ),
@@ -222,11 +242,11 @@ class _SidebarState extends State<Sidebar> {
               ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.greenAccent,
+                  backgroundColor: Colors.pinkAccent,
                 ),
                 child: const Text(
                   "Pay",
-                  style: TextStyle(color: Colors.deepPurple),
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ],
