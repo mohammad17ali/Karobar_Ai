@@ -24,6 +24,7 @@ class _SidebarState extends State<Sidebar> {
   List<Map<String, dynamic>> ordersList = [];
   late List<Map<String, dynamic>> _cartList;
   bool _isLoading = true;
+  List<bool> _isSelected = [true, false];
 
   @override
   void initState() {
@@ -55,14 +56,25 @@ class _SidebarState extends State<Sidebar> {
       color: Colors.deepPurple[800],
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.only(left: 10.0),
+            child: Image.asset(
+              'lib/assets/logoR.png',
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+          ),
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.deepPurple[600],
+              color: Colors.deepPurple[700],
               borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: const Color(0xFF532EC3),
+                width: 1,
+              )
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
