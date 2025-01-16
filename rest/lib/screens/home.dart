@@ -5,6 +5,7 @@ import '../services/fetchOrders.dart';
 import '../components/sidebar.dart';
 import '../services/dummyorders.dart';
 import '../services/dummylist.dart';
+import 'ledger.dart';
 
 
 class RestaurantHomePage extends StatelessWidget {
@@ -38,6 +39,7 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> _foodItems = [];
   List<Map<String, dynamic>> ordersList = [];
   bool _isLoading = true;
+  int _toggleIndex = 0;
 
   @override
   void initState() {
@@ -81,11 +83,36 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.deepPurple[800],
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 20.0),
-            child: Image.asset(
-              'lib/assets/logoR.png',
-              height: 40,
-              fit: BoxFit.contain,
+            padding: const EdgeInsets.only(right: 30.0),
+            child: ToggleButtons(
+              isSelected: [_toggleIndex == 0, _toggleIndex == 1],
+              onPressed: (int index) {
+                setState(() {
+                  _toggleIndex = index;
+                  if (_toggleIndex == 1) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LedgerPage(),
+                      ),
+                    );
+                  }
+                });
+              },
+              borderRadius: BorderRadius.circular(16.0),
+              selectedBorderColor: Colors.white12,
+              borderColor: Colors.white12,
+              selectedColor: Colors.white,
+              fillColor: Colors.deepPurple[300],
+              color: Colors.deepPurple[100],
+              constraints: const BoxConstraints(
+                minWidth: 100.0,
+                minHeight: 40.0,
+              ),
+              children: const [
+                Text('Menu', style: TextStyle(fontSize: 14)),
+                Text('Dashboard', style: TextStyle(fontSize: 14)),
+              ],
             ),
           ),
         ],
@@ -97,12 +124,14 @@ class _HomePageState extends State<HomePage> {
           // Sidebar
           Sidebar(ordersList: [], cartList: _cartList),
 
+          // Main content
           Expanded(
             child: Column(
               children: [
+                // Category bar
                 Container(
                   height: 50,
-                  color: Colors.deepPurple[600],
+                  color: Colors.deepPurple[800],
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: [
@@ -114,6 +143,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
+                // Menu items
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -172,7 +202,7 @@ class _HomePageState extends State<HomePage> {
           });
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: _selectedCategory == title ? Colors.deepPurple : Colors.deepPurple[50],
+          backgroundColor: _selectedCategory == title ? Colors.pinkAccent : Colors.deepPurple[50],
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
@@ -192,11 +222,12 @@ class _HomePageState extends State<HomePage> {
     return Stack(
       children: [
         Card(
+          margin: EdgeInsets.fromLTRB(2, 10, 10, 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           elevation: 4,
-          color: isAdded ? Colors.red[100] : Colors.white,
+          color: isAdded ? Colors.pinkAccent[100] : Colors.white,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -220,7 +251,8 @@ class _HomePageState extends State<HomePage> {
                       item['name'],
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 12,
+                        color: const Color(0xFF2C176E),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -229,6 +261,7 @@ class _HomePageState extends State<HomePage> {
                       style: const TextStyle(
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
+                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -242,7 +275,7 @@ class _HomePageState extends State<HomePage> {
             right: 0,
             top: 0,
             child: CircleAvatar(
-              radius: 16,
+              radius: 20,
               backgroundColor: Colors.green,
               child: Text(
                 quantity.toString(),
@@ -267,10 +300,10 @@ class _HomePageState extends State<HomePage> {
               },
               child: CircleAvatar(
                 radius: 24,
-                backgroundColor: Colors.red,
+                backgroundColor: Colors.white,
                 child: Icon(
                   quantity > 1 ? Icons.remove : Icons.delete,
-                  color: Colors.white,
+                  color: Colors.pinkAccent,
                   size: 20,
                 ),
               ),
