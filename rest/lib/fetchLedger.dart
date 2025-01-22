@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../assets/keys.dart'
 
 class LedgerService {
   static const String _baseUrl =
       "https://api.airtable.com/v0/<xx>/Ledger";
-  static const String _apiToken = "API_KEY";
+  static const String _apiToken = Keys.airtableAPIkey;
 
   Future<List<Map<String, dynamic>>> fetchLedgerData() async {
     try {
