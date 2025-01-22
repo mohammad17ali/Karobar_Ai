@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../assets/keys.dart'
 
 class FetchOrders {
   static const String apiUrl =
       "https://api.airtable.com/v0/appWaAdFLtWA1IAZM/Orders";
-  static const String apiKey = "API_KEY";
+  static const String apiKey = Keys.airtableAPIkey;
 
   static Future<List<Map<String, dynamic>>> fetchOrders() async {
     List<Map<String, dynamic>> ordersList = [];
