@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../functions.dart';
+import '../services/functions.dart';
 import '../services/dummyorders.dart';
 import '../services/dummylist.dart';
 import '../services/fetchOrders.dart';
-
+import '../services/postOrder.dart';
 import '../services/fetchItems.dart';
 
 
@@ -23,6 +23,7 @@ class Sidebar extends StatefulWidget {
 class _SidebarState extends State<Sidebar> {
   List<Map<String, dynamic>> ordersList = [];
   late List<Map<String, dynamic>> _cartList;
+  
   bool _isLoading = true;
   List<bool> _isSelected = [true, false];
 
@@ -31,6 +32,17 @@ class _SidebarState extends State<Sidebar> {
     super.initState();
     _fetchOrders();
     _cartList = widget.cartList;
+  }
+  void postOrder() async {
+    const String userId = "user9123456789"; // Replace with actual user ID
+    const String outletId = "out9987654321"; // Replace with actual outlet ID
+
+    try {
+      await OrderService.postOrders(widget.cartList, userId, outletId);
+      print("Order posted successfully!");
+    } catch (e) {
+      print("Error posting order: $e");
+    }
   }
 
   Future<void> _fetchOrders() async {
@@ -89,7 +101,7 @@ class _SidebarState extends State<Sidebar> {
                 ),
                 const SizedBox(height: 10),
                 AspectRatio(
-                  aspectRatio: 3 / 2,
+                  aspectRatio: 5 / 2,
                   child: GridView.builder(
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
@@ -150,118 +162,136 @@ class _SidebarState extends State<Sidebar> {
             ),
           ),
           const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Order Details",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.deepPurple[700],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: const Color(0xFF532EC3),
+                width: 1,
+              )
+            ),
+            height: 350,
+            child: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Order Details",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        "${ordersList.isNotEmpty ? ordersList.last['OrderNum'] + 1 : 1}",
+                        style: const TextStyle(
+                          color: Colors.deepPurple,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  "${ordersList.isNotEmpty ? ordersList.last['OrderNum'] + 1 : 1}",
-                  style: const TextStyle(
-                    color: Colors.deepPurple,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                const SizedBox(height: 10),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _cartList.length,
+                    itemBuilder: (context, index) {
+                      final item = _cartList[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              item['name'],
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            Text(
+                              "${item['quantity']} x ${item['price']} Rs.",
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                            Text(
+                              "${item['quantity'] * item['price']} Rs.",
+                              style: const TextStyle(
+                                color: Colors.greenAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _cartList.length,
-              itemBuilder: (context, index) {
-                final item = _cartList[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                const Divider(color: Colors.white70),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        item['name'],
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      Text(
-                        "${item['quantity']} x ${item['price']} Rs.",
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                      Text(
-                        "${item['quantity'] * item['price']} Rs.",
-                        style: const TextStyle(
-                          color: Colors.greenAccent,
+                      const Text(
+                        "Total: ",
+                        style: TextStyle(
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        "${_cartList.fold<int>(0, (sum, item) => sum + (item['quantity'] * item['price'] as int))} Rs.",
+                
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.greenAccent,
                         ),
                       ),
                     ],
                   ),
-                );
-              },
-            ),
-          ),
-          const Divider(color: Colors.white70),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Total: ",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
                 ),
-                Text(
-                  "${_cartList.fold<int>(0, (sum, item) => sum + (item['quantity'] * item['price'] as int))} Rs.",
-
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.greenAccent,
-                  ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: ()  {
+                        postOrder();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                      ),
+                      child: const Text(
+                        "Confirm",
+                        style: TextStyle(color: Colors.deepPurple),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pinkAccent,
+                      ),
+                      child: const Text(
+                        "Pay",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                ),
-                child: const Text(
-                  "Confirm",
-                  style: TextStyle(color: Colors.deepPurple),
-                ),
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pinkAccent,
-                ),
-                child: const Text(
-                  "Pay",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
           ),
         ],
       ),
