@@ -27,6 +27,7 @@ class _LedgerPageState extends State<LedgerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           "The Zaika Restaurant",
           style: TextStyle(
@@ -38,37 +39,46 @@ class _LedgerPageState extends State<LedgerPage> {
         backgroundColor: Colors.deepPurple[800],
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 30.0),
-            child: ToggleButtons(
-              isSelected: [_toggleIndex == 0, _toggleIndex == 1],
-              onPressed: (int index) {
-                setState(() {
-                  _toggleIndex = index;
-                  if (_toggleIndex == 0) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomePage(),
-                      ),
-                    );
-                  }
-                });
-              },
-              borderRadius: BorderRadius.circular(16.0),
-              selectedBorderColor: Colors.white12,
-              borderColor: Colors.white12,
-              selectedColor: Colors.white,
-              fillColor: Colors.deepPurple[300],
-              color: Colors.deepPurple[100],
-              constraints: const BoxConstraints(
-                minWidth: 100.0,
-                minHeight: 40.0,
+            padding: const EdgeInsets.only(right: 30.0,bottom: 10),
+            child: Container(
+              padding: EdgeInsets.all(5),
+
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                color: Colors.white,
               ),
-              children: const [
-                Text('Menu', style: TextStyle(fontSize: 14)),
-                Text('Dashboard', style: TextStyle(fontSize: 14)),
-              ],
-            ),
+              child: Row(
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(
+                        context
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shadowColor: Colors.white,
+                    ),
+                    child: const Text(
+                      "Menu",
+                      style: TextStyle(color: Colors.pinkAccent),
+                    ),
+                  ),
+                  SizedBox(width: 10,),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pinkAccent,
+                      shadowColor: Colors.white,
+                    ),
+                    child: const Text(
+                      "Dash",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              )
+            )
           ),
         ],
       ),
@@ -80,6 +90,7 @@ class _LedgerPageState extends State<LedgerPage> {
             cartList: [],
           ),
 
+          // Ledger Content
           Expanded(
             child: FutureBuilder<List<Map<String, dynamic>>>(
               future: _ledgerData,
@@ -133,7 +144,6 @@ class _LedgerPageState extends State<LedgerPage> {
                       rows: ledgerData.map((entry) {
                         return DataRow(
                           cells: [
-                            //DataCell(Text(entry['dayNum'])),
                             DataCell(Text(entry['date'])),
                             DataCell(Text(entry['totalSales'].toString())),
                           ],
