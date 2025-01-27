@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/fetchItems.dart';
-import '../services/fetchOrders.dart';
+//import '../services/fetchOrders.dart';
 import '../components/sidebar.dart';
-import '../services/dummyorders.dart';
-import '../services/dummylist.dart';
+import '../constants/constants.dart';
 import 'ledger.dart';
-
 
 class RestaurantHomePage extends StatelessWidget {
   const RestaurantHomePage({super.key});
@@ -29,301 +27,282 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  _HomePageState createState() => _HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   final Map<String, int> _cart = {};
-  final List<Map<String, dynamic>> _cartList = [];
+  final List<Map<String, dynamic>> _cartItems = [];
   String _selectedCategory = 'All';
   List<Map<String, dynamic>> _foodItems = [];
-  List<Map<String, dynamic>> ordersList = [];
   bool _isLoading = true;
   int _toggleIndex = 0;
+
+  static const List<String> _categories = [
+    "All",
+    "Starters",
+    "Main Course",
+    "Chinese",
+    "Indian",
+    "Continental"
+  ];
 
   @override
   void initState() {
     super.initState();
-    _fetchFoodItems();
+    _loadFoodItems();
   }
 
-  Future<void> _fetchFoodItems() async {
+  Future<void> _loadFoodItems() async {
     try {
-      final fetchedItems = await FetchItems.fetchFoodItems();
+      final items = await FetchItems.fetchFoodItems();
       setState(() {
-        _foodItems = fetchedItems;
+        _foodItems = items;
         _isLoading = false;
       });
     } catch (e) {
-      print('Error fetching food items: $e');
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
   }
 
+  List<Map<String, dynamic>> get _filteredItems => _selectedCategory == 'All'
+      ? _foodItems
+      : _foodItems.where((item) => item['category'].contains(_selectedCategory)).toList();
+
+  void _handleItemTap(Map<String, dynamic> item) {
+    final itemID = item['ItemID'];
+    setState(() {
+      if (!_cart.containsKey(itemID)) {
+        _cart[itemID] = 1;
+        _cartItems.add({
+          'itemID': itemID,
+          'name': item['name'],
+          'price': item['price'],
+          'quantity': 1,
+        });
+      } else {
+        _cart[itemID] = (_cart[itemID]! + 1);
+        _cartItems.firstWhere((cartItem) => cartItem['itemID'] == itemID)['quantity']++;
+      }
+    });
+  }
+
+  void _handleItemRemove(String itemID, int quantity) {
+    setState(() {
+      if (quantity > 1) {
+        _cart[itemID] = quantity - 1;
+        _cartItems.firstWhere((cartItem) => cartItem['itemID'] == itemID)['quantity']--;
+      } else {
+        _cart.remove(itemID);
+        _cartItems.removeWhere((cartItem) => cartItem['itemID'] == itemID);
+      }
+    });
+  }
+  
+
   @override
   Widget build(BuildContext context) {
-    final filteredItems = _selectedCategory == 'All'
-        ? _foodItems
-        : _foodItems
-        .where((item) => item['category'].contains(_selectedCategory))
-        .toList();
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "The Zaika Restaurant",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.deepPurple[800],
-        actions: [
-          Padding(
-              padding: const EdgeInsets.only(right: 30.0,bottom: 10),
-              child: Container(
-                  padding: EdgeInsets.all(5),
-
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    color: Colors.white,
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.pinkAccent,
-                          shadowColor: Colors.white,
-                        ),
-                        child: const Text(
-                          "Menu",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      SizedBox(width: 10,),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const LedgerPage(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shadowColor: Colors.white,
-                        ),
-                        child: const Text(
-                          "Dash",
-                          style: TextStyle(color: Colors.pinkAccent),
-                        ),
-                      ),
-
-                    ],
-                  )
-              )
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(context),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Row(
-        children: [
-          // Sidebar
-          Sidebar(ordersList: [], cartList: _cartList),
-
-          // Main content
-          Expanded(
-            child: Column(
               children: [
-                // Category bar
-                Container(
-                  height: 50,
-                  color: Colors.deepPurple[800],
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      _buildCategoryButton("All"),
-                      ...["Starters", "Main Course", "Chinese", "Indian", "Continental"].map((category) {
-                        return _buildCategoryButton(category);
-                      }).toList(),
-                    ],
+                Sidebar(
+                  cartItems: _cartItems,
+                  onOrderSuccess: () {
+                    setState(() {
+                      _cart.clear();
+                      _cartItems.clear();
+                    });
+                  },
+                ),
+                Expanded(child: _buildMainContent()),
+              ],
+            ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) => AppBar(
+        title: Text(
+          "The Zaika Restaurant",
+          style: AppTextStyles.titleLarge.copyWith(color: Colors.white),
+        ),
+        backgroundColor: AppColors.primaryDark,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 30.0),
+            child: _buildToggleButtons(),
+          ),
+        ],
+      );
+
+  Widget _buildToggleButtons() => ToggleButtons(
+        isSelected: [_toggleIndex == 0, _toggleIndex == 1],
+        onPressed: (int index) {
+          setState(() {
+            _toggleIndex = index;
+            if (_toggleIndex == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const LedgerPage()),
+              );
+            }
+          });
+        },
+        borderRadius: BorderRadius.circular(16.0),
+        selectedBorderColor: Colors.white12,
+        borderColor: Colors.white12,
+        selectedColor: Colors.white,
+        fillColor: AppColors.primary,
+        color: AppColors.primary.withOpacity(0.7),
+        constraints: const BoxConstraints(
+          minWidth: 100.0,
+          minHeight: 40.0,
+        ),
+        children: const [
+          Text('Menu', style: TextStyle(fontSize: 14)),
+          Text('Dashboard', style: TextStyle(fontSize: 14)),
+        ],
+      );
+
+  Widget _buildMainContent() => Column(
+        children: [
+          _buildCategoryBar(),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: _buildItemsGrid(),
+            ),
+          ),
+        ],
+      );
+
+  Widget _buildCategoryBar() => Container(
+        height: 50,
+        color: AppColors.primaryDark,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: _categories.map(_buildCategoryButton).toList(),
+        ),
+      );
+
+  Widget _buildCategoryButton(String title) => Padding(
+        padding: const EdgeInsets.all(4),
+        child: ElevatedButton(
+          onPressed: () => setState(() => _selectedCategory = title),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _selectedCategory == title
+                ? AppColors.accent
+                : AppColors.catNotSelectedBG,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+          child: Text(
+            title,
+            style: TextStyle(
+              color: _selectedCategory == title ? Colors.white : AppColors.catNotSelectedTXT,
+            ),
+          ),
+        ),
+      );
+
+  Widget _buildItemsGrid() => GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          childAspectRatio: 0.85,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+        ),
+        itemCount: _filteredItems.length,
+        itemBuilder: (context, index) {
+          final item = _filteredItems[index];
+          final itemID = item['ItemID'];
+          final isAdded = _cart.containsKey(itemID);
+          final quantity = _cart[itemID] ?? 0;
+
+          return GestureDetector(
+            onTap: () => _handleItemTap(item),
+            child: _buildItemCard(item, isAdded, quantity),
+          );
+        },
+      );
+
+  Widget _buildItemCard(Map<String, dynamic> item, bool isAdded, int quantity) => Stack(
+        children: [
+          Card(
+            margin: const EdgeInsets.fromLTRB(2, 10, 10, 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 4,
+            color: isAdded ? AppColors.accent.withOpacity(0.3) : Colors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      image: DecorationImage(
+                        image: NetworkImage(item['image']),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                 ),
-
-                // Menu items
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4,
-                        childAspectRatio: 0.85,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item['name'],
+                        style: AppTextStyles.cardTitle,
                       ),
-                      itemCount: filteredItems.length,
-                      itemBuilder: (context, index) {
-                        final item = filteredItems[index];
-                        final itemID = item['ItemID'];
-                        final isAdded = _cart.containsKey(itemID);
-                        final quantity = _cart[itemID] ?? 0;
-
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              if (!_cart.containsKey(itemID)) {
-                                _cart[itemID] = 1;
-                                _cartList.add({
-                                  'itemID': itemID,
-                                  'name': item['name'],
-                                  'price': item['price'],
-                                  'quantity': 1,
-                                });
-                              } else {
-                                _cart[itemID] = (_cart[itemID]! + 1);
-                                _cartList.firstWhere((cartItem) => cartItem['itemID'] == itemID)['quantity']++;
-                              }
-                            });
-                          },
-                          child: buildCard(item, isAdded, quantity),
-                        );
-                      },
-                    ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "${item['price']} Rs.",
+                        style: AppTextStyles.priceText,
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryButton(String title) {
-    return Padding(
-      padding: const EdgeInsets.all(4),
-      child: ElevatedButton(
-        onPressed: () {
-          setState(() {
-            _selectedCategory = title;
-          });
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _selectedCategory == title ? Colors.pinkAccent : Colors.deepPurple[50],
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-        child: Text(
-          title,
-          style: TextStyle(
-            color: _selectedCategory == title ? Colors.white : Colors.deepPurple,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildCard(Map<String, dynamic> item, bool isAdded, int quantity) {
-    return Stack(
-      children: [
-        Card(
-          margin: EdgeInsets.fromLTRB(2, 10, 10, 10),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          elevation: 4,
-          color: isAdded ? Colors.pinkAccent[100] : Colors.white,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                    image: DecorationImage(
-                      image: NetworkImage(item['image']),
-                      fit: BoxFit.cover,
-                    ),
+          if (isAdded) ...[
+            Positioned(
+              right: 0,
+              top: 0,
+              child: CircleAvatar(
+                radius: 20,
+                backgroundColor: AppColors.success,
+                child: Text(
+                  quantity.toString(),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 10,
+              bottom: 10,
+              child: GestureDetector(
+                onTap: () => _handleItemRemove(item['ItemID'], quantity),
+                child: CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    quantity > 1 ? Icons.remove : Icons.delete,
+                    color: AppColors.accent,
+                    size: 20,
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item['name'],
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: const Color(0xFF2C176E),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "${item['price']} Rs.",
-                      style: const TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (isAdded) ...[
-          Positioned(
-            right: 0,
-            top: 0,
-            child: CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.green,
-              child: Text(
-                quantity.toString(),
-                style: const TextStyle(color: Colors.white),
-              ),
             ),
-          ),
-          Positioned(
-            right: 10,
-            bottom: 10,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (quantity > 1) {
-                    _cart[item['ItemID']] = quantity - 1;
-                    _cartList.firstWhere((cartItem) => cartItem['itemID'] == item['ItemID'])['quantity']--;
-                  } else {
-                    _cart.remove(item['ItemID']);
-                    _cartList.removeWhere((cartItem) => cartItem['itemID'] == item['ItemID']);
-                  }
-                });
-              },
-              child: CircleAvatar(
-                radius: 24,
-                backgroundColor: Colors.white,
-                child: Icon(
-                  quantity > 1 ? Icons.remove : Icons.delete,
-                  color: Colors.pinkAccent,
-                  size: 20,
-                ),
-              ),
-            ),
-          ),
+          ],
         ],
-      ],
-    );
-  }
+      );
 }
