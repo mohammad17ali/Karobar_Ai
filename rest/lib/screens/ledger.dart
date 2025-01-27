@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:karobar_v2/screens/home.dart';
+import 'home.dart';
 import '../services/fetchLedger.dart';
-import '../components/sidebar.dart'; 
-import '../services/dummyorders.dart'; 
-import '../services/dummylist.dart'; 
+import '../components/sidebar.dart';
+import '../constants/constants.dart';
 
 class LedgerPage extends StatefulWidget {
   const LedgerPage({super.key});
 
   @override
-  _LedgerPageState createState() => _LedgerPageState();
+  State<LedgerPage> createState() => _LedgerPageState();
 }
 
 class _LedgerPageState extends State<LedgerPage> {
@@ -20,143 +19,156 @@ class _LedgerPageState extends State<LedgerPage> {
   @override
   void initState() {
     super.initState();
+    _loadLedgerData();
+  }
+
+  void _loadLedgerData() {
     _ledgerData = _ledgerService.fetchLedgerData();
+  }
+
+  void _handleToggle(int index) {
+    setState(() {
+      _toggleIndex = index;
+      if (_toggleIndex == 0) {
+        Navigator.pop(
+          context
+        );
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text(
-          "The Zaika Restaurant",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.deepPurple[800],
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 30.0,bottom: 10),
-            child: Container(
-              padding: EdgeInsets.all(5),
-
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-                color: Colors.white,
-              ),
-              child: Row(
-                children: <Widget>[
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(
-                        context
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shadowColor: Colors.white,
-                    ),
-                    child: const Text(
-                      "Menu",
-                      style: TextStyle(color: Colors.pinkAccent),
-                    ),
-                  ),
-                  SizedBox(width: 10,),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.pinkAccent,
-                      shadowColor: Colors.white,
-                    ),
-                    child: const Text(
-                      "Dash",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              )
-            )
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(),
       body: Row(
         children: [
-          // Sidebar
           Sidebar(
-            ordersList: [],
-            cartList: [],
+            cartItems: const [],
+            onOrderSuccess: () {},
           ),
-
-          // Ledger Content
-          Expanded(
-            child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: _ledgerData,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      'Error: ${snapshot.error}',
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  );
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(
-                    child: Text('No ledger data available.'),
-                  );
-                }
-
-                final ledgerData = snapshot.data!;
-
-                return Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 4,
-                    child: DataTable(
-                      columnSpacing: 20.0,
-                      columns: const [
-                        DataColumn(
-                          label: Text(
-                            'Date',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'Total Sales (₹)',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ],
-                      rows: ledgerData.map((entry) {
-                        return DataRow(
-                          cells: [
-                            DataCell(Text(entry['date'])),
-                            DataCell(Text(entry['totalSales'].toString())),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
+          Expanded(child: _buildLedgerContent()),
         ],
       ),
     );
   }
+
+  PreferredSizeWidget _buildAppBar() => AppBar(
+        title: Text(
+          "The Zaika Restaurant",
+          style: AppTextStyles.titleLarge,
+        ),
+        backgroundColor: AppColors.primaryDark,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 30.0),
+            child: _buildToggleButtons(),
+          ),
+        ],
+      );
+
+  Widget _buildToggleButtons() => ToggleButtons(
+        isSelected: [_toggleIndex == 0, _toggleIndex == 1],
+        onPressed: _handleToggle,
+        borderRadius: BorderRadius.circular(16.0),
+        selectedBorderColor: Colors.white12,
+        borderColor: Colors.white12,
+        selectedColor: AppColors.white,
+        fillColor: AppColors.primaryLight,
+        color: AppColors.primaryLight.withOpacity(0.7),
+        constraints: const BoxConstraints(
+          minWidth: 100.0,
+          minHeight: 40.0,
+        ),
+        children: const [
+          Text('Menu', style: TextStyle(fontSize: 14)),
+          Text('Dashboard', style: TextStyle(fontSize: 14)),
+        ],
+      );
+
+  Widget _buildLedgerContent() => FutureBuilder<List<Map<String, dynamic>>>(
+        future: _ledgerData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: const TextStyle(color: AppColors.error),
+              ),
+            );
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+              child: Text(
+                'No ledger data available.',
+                style: AppTextStyles.bodyTextDark,
+              ),
+            );
+          }
+
+          return _buildLedgerTable(snapshot.data!);
+        },
+      );
+
+  Widget _buildLedgerTable(List<Map<String, dynamic>> ledgerData) => Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 4,
+          child: Container(
+            decoration: AppDecorations.mainContainer(context),
+            child: DataTable(
+              columnSpacing: 20.0,
+              columns: _buildTableColumns(),
+              rows: _buildTableRows(ledgerData),
+            ),
+          ),
+        ),
+      );
+
+  List<DataColumn> _buildTableColumns() => const [
+        DataColumn(
+          label: Text(
+            'Date',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: AppColors.primaryDark,
+            ),
+          ),
+        ),
+        DataColumn(
+          label: Text(
+            'Total Sales (₹)',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: AppColors.primaryDark,
+            ),
+          ),
+        ),
+      ];
+
+  List<DataRow> _buildTableRows(List<Map<String, dynamic>> ledgerData) =>
+      ledgerData.map((entry) {
+        return DataRow(
+          cells: [
+            DataCell(Text(
+              entry['date'],
+              style: AppTextStyles.bodyTextDark,
+            )),
+            DataCell(Text(
+              entry['totalSales'].toString(),
+              style: AppTextStyles.bodyTextDark,
+            )),
+          ],
+        );
+      }).toList();
 }
