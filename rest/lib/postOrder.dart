@@ -7,13 +7,13 @@ class OrderService {
   static const String _baseUrl = "https://api.airtable.com/v0/appWaAdFLtWA1IAZM/Orders";
   static const String _apiKey = Keys.airtableAPIkey;
 
-  static Future<void> postOrders(List<Map<String, dynamic>> cartList, String userId, String outletId) async {
+  static Future<void> postOrders(List<Map<String, dynamic>> cartList, String userId, String outletId, int orderNum) async {
     try {
       List<Map<String, dynamic>> records = cartList.map((item) {
         return {
           "fields": {
             "OrderID": "ord${item['id']}_${DateTime.now().millisecondsSinceEpoch}",
-            "OrderNum": item['orderNumber'],
+            "OrderNum": orderNum,
             "User_ID": userId,
             "Outlet_ID": outletId,
             "Amount": item['quantity'] * item['price'],
