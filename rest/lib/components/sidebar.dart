@@ -5,12 +5,13 @@ import '../services/postOrder.dart';
 import '../components/active_orders_grid.dart';
 import '../components/order_details_section.dart';
 import '../constants/constants.dart';
+import '../screens/menus.dart';
 
 class Sidebar extends StatefulWidget {
   //final List<Map<String, dynamic>> ordersList;
   final List<Map<String, dynamic>> cartItems;
   final VoidCallback onOrderSuccess;
-  
+
   const Sidebar({
     super.key,
     required this.cartItems,
@@ -52,7 +53,7 @@ class _SidebarState extends State<Sidebar> {
         "out9987654321",
         _nextOrderNumber,
       );
-      widget.onOrderSuccess(); 
+      widget.onOrderSuccess();
       await _loadOrders();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -87,7 +88,7 @@ class _SidebarState extends State<Sidebar> {
     return Container(
       width: MediaQuery.of(context).size.width * 0.3,
       decoration: const BoxDecoration(
-        color: AppColors.primaryDark,
+        color: AppColors.primary,
         boxShadow: [
           BoxShadow(
             color: Colors.black26,
@@ -102,14 +103,16 @@ class _SidebarState extends State<Sidebar> {
           _buildLogo(),
           //const SizedBox(height: 24),
           _buildActiveOrdersSection(context),
-          const SizedBox(height: 24),
+          const SizedBox(height: 15),
           Expanded(
-            child: OrderDetailsSection(
+            child: widget.cartItems.isEmpty
+                ? _buildManageSection(context)
+                : OrderDetailsSection(
               cartItems: widget.cartItems,
               nextOrderNumber: _nextOrderNumber,
               onConfirm: _postOrder,
-              onPay: () {}, 
-            ),
+              onPay: () {},
+              ),
           ),
         ],
       ),
@@ -117,12 +120,53 @@ class _SidebarState extends State<Sidebar> {
   }
 
   Widget _buildLogo() => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
+    padding: const EdgeInsets.only(bottom: 5),
     child: Image.asset(
       'lib/assets/logoR.png',
-      height: 20,
+      height: 30,
       fit: BoxFit.contain,
     ),
+  );
+  //Widget _buildManageButton() =>
+
+  Widget _buildManageSection(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text("Manage", style: AppTextStyles.titleLarge),
+      const SizedBox(height: 16),
+      Container(
+        padding: const EdgeInsets.all(16),
+        height: MediaQuery.of(context).size.height * 0.15,
+        decoration: BoxDecoration(
+          color: Colors.deepPurple[700],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.primaryLight, width: 1),
+
+        ),
+      ),
+      const SizedBox(height: 16),
+      ElevatedButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MenuManagementPage(),
+            ),
+          );
+        },
+        icon: const Icon(Icons.menu_book),
+        label: const Text('Manage Menus'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.white,
+          foregroundColor: AppColors.primary,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 12,
+          ),
+          minimumSize: const Size(double.infinity, 48),
+        ),
+      ),
+    ],
   );
 
   Widget _buildActiveOrdersSection(BuildContext context) => Container(
