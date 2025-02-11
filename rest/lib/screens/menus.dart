@@ -12,7 +12,6 @@ class MenuManagementPage extends StatefulWidget {
 class _MenuManagementPageState extends State<MenuManagementPage> {
   String selectedMenu = 'Monday Menu';
 
-  // Sample menu data
   final List<String> menus = [
     'Monday Menu',
     'Tuesday Menu',
@@ -21,7 +20,6 @@ class _MenuManagementPageState extends State<MenuManagementPage> {
     'Friday Menu',
   ];
 
-  // Sample category and items data
   final Map<String, List<String>> menuItems = {
     'Starters': ['Paneer Tikka', 'Veg Spring Roll', 'Mushroom Manchurian'],
     'Main Course': ['Dal Makhani', 'Paneer Butter Masala', 'Veg Biryani'],
@@ -57,14 +55,12 @@ class _MenuManagementPageState extends State<MenuManagementPage> {
                     fontSize: 12,
                   ),
                 ),
-                // Scan Menu Button
                 _buildSidebarButton(
                   'Scan a menu',
                   LucideIcons.qrCode,
                       () => Navigator.pushNamed(context, 'AddMenuScan'),
                 ),
 
-                // Add Menu Button
                 _buildSidebarButton(
                   'Add a menu',
                   LucideIcons.plus,
@@ -76,7 +72,6 @@ class _MenuManagementPageState extends State<MenuManagementPage> {
                   child: Divider(),
                 ),
 
-                // Menu List
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.all(8),
@@ -90,13 +85,11 @@ class _MenuManagementPageState extends State<MenuManagementPage> {
             ),
           ),
 
-          // Main Content (7/10)
           Expanded(
             child: Container(
               color: Colors.white,
               child: Column(
                 children: [
-                  // Header with menu name and edit button
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: const BoxDecoration(
@@ -131,7 +124,6 @@ class _MenuManagementPageState extends State<MenuManagementPage> {
                     ),
                   ),
 
-                  // Menu items grouped by category
                   Expanded(
                     child: ListView.builder(
                       padding: const EdgeInsets.all(16),
